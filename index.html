@@ -991,6 +991,14 @@
                                 <span>⚠️ Eritema leve sin otros signos</span>
                             </label>
                             <label class="radio-option danger">
+                                <input type="radio" name="skinCondition" value="Sucio" onchange="checkCurationRequired()">
+                                <span>⚠️ Sitio sucio (con residuos)</span>
+                            </label>
+                            <label class="radio-option danger">
+                                <input type="radio" name="skinCondition" value="Sangrado-visible" onchange="checkCurationRequired()">
+                                <span>🚨 Sangrado visible en el sitio</span>
+                            </label>
+                            <label class="radio-option danger">
                                 <input type="radio" name="skinCondition" value="Signos-infeccion" onchange="checkCurationRequired()">
                                 <span>🚨 Enrojecimiento + calor/dolor</span>
                             </label>
@@ -1294,13 +1302,15 @@
 
             if (skinCondition && (skinCondition.value === 'Signos-infeccion' || 
                 skinCondition.value === 'Secrecion-purulenta' || 
-                skinCondition.value === 'Eritema-leve')) {
+                skinCondition.value === 'Eritema-leve' || skinCondition.value === 'Sucio' || skinCondition.value === 'Sangrado-visible')) {
                 if (skinCondition.value === 'Secrecion-purulenta') {
                     urgentConditions.push('SECRECIÓN PURULENTA en sitio de inserción');
                 } else if (skinCondition.value === 'Signos-infeccion') {
                     urgentConditions.push('Signos de infección (enrojecimiento + calor/dolor)');
-                } else {
-                    urgentConditions.push('Eritema en sitio de inserción');
+                } else if (skinCondition.value === 'Sucio') {
+                    urgentConditions.push('Sitio de inserción sucio - requiere limpieza');
+                } else if (skinCondition.value === 'Sangrado-visible') {
+                    urgentConditions.push('Sangrado visible en sitio de inserción');
                 }
                 required = true;
                 urgencyLevel = 'urgent';
