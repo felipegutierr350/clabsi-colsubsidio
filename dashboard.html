@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitor CLABSI - UCI Pediátrica</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #1976d2;
+            --success: #4caf50;
+            --warning: #ff9800;
+            --danger: #f44336;
+            --info: #2196f3;
+            --dark: #212121;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a2e;
+            min-height: 100vh;
+            color: white;
+        }
+
+        .monitor-container {
+            max-width: 100%;
+            padding: 10px;
+        }
+
+        .monitor-header {
+            background: linear-gradient(135deg, #0f3854 0%, #1e5128 100%);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .monitor-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .monitor-title h1 {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 15px;
+            border-radius: 20px;
+        }
+
+        .live-dot {
+            width: 10px;
+            height: 10px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: pulse-live 2s infinite;
+        }
+
+        @keyframes pulse-live {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .monitor-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn-monitor {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .btn-monitor:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .stats-bar {
+            background: #16213e;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+            text-transform: uppercase;
+        }
+
+        .beds-table {
+            background: #0f3854;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            padding: 15px;
+            font-weight: bold;
+            display: grid;
+            grid-template-columns: 60px 80px 180px 120px 100px 80px 80px 80px 100px 150px auto;
+            gap: 10px;
+            font-size: 13px;
+            text-transform: uppercase;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .bed-row {
+            display: grid;
+            grid-template-columns: 60px 80px 180px 120px 100px 80px 80px 80px 100px 150px auto;
+            gap: 10px;
+            padding: 12px 15px;
+            align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .bed-row:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .bed-row.libre {
+            opacity: 0.3;
+            background: rgba(128,128,128,0.1);
+        }
+
+        .bed-number {
+            font-weight: bold;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .patient-name {
+            font-weight: 600;
+            color: #64b5f6;
+        }
+
+        .semaforo {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px currentColor;
+            animation: pulse-light 2s infinite;
+        }
+
+        @keyframes pulse-light {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .semaforo.verde {
+            background: #4caf50;
+            box-shadow: 0 0 15px #4caf50;
+        }
+
+        .semaforo.amarillo {
+            background: #ffeb3b;
+            box-shadow: 0 0 15px #ffeb3b;
+        }
+
+        .semaforo.rojo {
+            background: #f44336;
+            box-shadow: 0 0 15px #f44336;
+            animation: pulse-danger 1s infinite;
+        }
+
+        @keyframes pulse-danger {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .semaforo.gris {
+            background: #757575;
+            box-shadow: 0 0 10px #757575;
+            animation: none;
+        }
+
+        .days-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .days-good {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+
+        .days-warning {
+            background: rgba(255, 152, 0, 0.2);
+            color: #ff9800;
+            border: 1px solid #ff9800;
+        }
+
+        .days-danger {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+
+        .alert-badges {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .alert-badge {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .alert-urgent {
+            background: rgba(244, 67, 54, 0.3);
+            color: #ff6b6b;
+            border: 1px solid #f44336;
+        }
+
+        .alert-warning {
+            background: rgba(255, 152, 0, 0.3);
+            color: #ffb347;
+            border: 1px solid #ff9800;
+        }
+
+        .alert-info {
+            background: rgba(33, 150, 243, 0.3);
+            color: #64b5f6;
+            border: 1px solid #2196f3;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-action {
+            padding: 5px 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-audit {
+            background: rgba(33, 150, 243, 0.3);
+            color: #64b5f6;
+            border: 1px solid #2196f3;
+        }
+
+        .btn-audit:hover {
+            background: rgba(33, 150, 243, 0.5);
+        }
+
+        .btn-cure {
+            background: rgba(255, 152, 0, 0.3);
+            color: #ffb347;
+            border: 1px solid #ff9800;
+        }
+
+        .btn-cure:hover {
+            background: rgba(255, 152, 0, 0.5);
+        }
+
+        .legend-container {
+            margin-top: 30px;
+            background: #16213e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .legend-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #64b5f6;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 5px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+
+        .timestamp {
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+        }
+
+        @media (max-width: 1200px) {
+            .table-header, .bed-row {
+                font-size: 12px;
+                grid-template-columns: 50px 70px 150px 100px 80px 70px 70px 70px 90px 130px auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .beds-table {
+                overflow-x: auto;
+            }
+            
+            .table-header, .bed-row {
+                min-width: 800px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="monitor-container">
+        <!-- Header del Monitor -->
+        <div class="monitor-header">
+            <div class="monitor-title">
+                <h1>🏥 MONITOR CLABSI UCI PEDIÁTRICA - Clínica Infantil Colsubsidio</h1>
+                <div class="live-indicator">
+                    <div class="live-dot"></div>
+                    <span>EN VIVO</span>
+                </div>
+            </div>
+            <div class="monitor-controls">
+                <span class="timestamp" id="lastUpdate">--:--:--</span>
+                <button class="btn-monitor" onclick="loadDashboard()">🔄 Actualizar</button>
+                <button class="btn-monitor" onclick="window.location.href='index.html'">📋 Sistema</button>
+            </div>
+        </div>
+
+        <!-- Barra de Estadísticas -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="totalBeds">13</div>
+                <div class="stat-label">Camas Totales</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="occupiedBeds">0</div>
+                <div class="stat-label">Camas Ocupadas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="avgCatheterDays">0</div>
+                <div class="stat-label">Promedio Días CVC</div>
+            </div>
+            <div class="stat-item" style="border: 2px solid #f44336;">
+                <div class="stat-value" id="criticalAlerts" style="color: #f44336;">0</div>
+                <div class="stat-label">Alertas Críticas</div>
+            </div>
+            <div class="stat-item" style="border: 2px solid #ff9800;">
+                <div class="stat-value" id="pendingCurations" style="color: #ff9800;">0</div>
+                <div class="stat-label">Curaciones Pendientes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="avgCompliance">0%</div>
+                <div class="stat-label">Cumplimiento Bundle</div>
+            </div>
+        </div>
+
+        <!-- Tabla de Camas -->
+        <div class="beds-table">
+            <div class="table-header">
+                <div>CAMA</div>
+                <div>ESTADO</div>
+                <div>PACIENTE</div>
+                <div>DOCUMENTO</div>
+                <div>INSERCIÓN</div>
+                <div>TIPO CVC</div>
+                <div>DÍAS CVC</div>
+                <div>DÍAS CUR.</div>
+                <div>PRÓX. CUR.</div>
+                <div>ALERTAS</div>
+                <div>ACCIONES</div>
+            </div>
+            <div id="bedsContainer">
+                <!-- Se llena dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Leyenda -->
+        <div class="legend-container">
+            <div class="legend-title">📊 INTERPRETACIÓN DE INDICADORES</div>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <div class="legend-color semaforo verde"></div>
+                    <div>
+                        <strong>VERDE:</strong> Óptimo<br>
+                        <small>Catéter ≤3 días, Curación ≤3 días</small>
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color semaforo amarillo"></div>
+                    <div>
+                        <strong>AMARILLO:</strong> Precaución<br>
+                        <small>Catéter 4-6 días, Curación 4-6 días</small>
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color semaforo rojo"></div>
+                    <div>
+                        <strong>ROJO:</strong> Crítico<br>
+                        <small>Catéter ≥7 días, Curación ≥7 días o urgente</small>
+                    </div>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color semaforo gris"></div>
+                    <div>
+                        <strong>GRIS:</strong> Libre<br>
+                        <small>Cama sin paciente asignado</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de Supabase
+        const SUPABASE_URL = 'https://gkiwuznolmotbcxlmtod.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdraXd1em5vbG1vdGJjeGxtdG9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5NzQwMjAsImV4cCI6MjA3NDU1MDAyMH0.niDF1TYj3WN3CMgoPSxoFxykFY8GTWlhiopQKWlFZpc';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        async function loadDashboard() {
+            try {
+                // Obtener datos de bed_dashboard
+                const { data: bedData, error } = await supabase
+                    .from('bed_dashboard')
+                    .select('*')
+                    .order('bed');
+
+                if (error) {
+                    console.error('Error:', error);
+                    return;
+                }
+
+                // Crear array de 13 camas
+                const beds = [];
+                for (let i = 1; i <= 13; i++) {
+                    const bedInfo = bedData?.find(b => b.bed === String(i));
+                    beds.push({
+                        number: i,
+                        data: bedInfo
+                    });
+                }
+
+                renderBeds(beds);
+                updateStats(bedData);
+                
+                // Actualizar timestamp
+                const now = new Date();
+                document.getElementById('lastUpdate').textContent = 
+                    now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+            } catch (error) {
+                console.error('Error cargando dashboard:', error);
+            }
+        }
+
+        function renderBeds(beds) {
+            const container = document.getElementById('bedsContainer');
+            container.innerHTML = '';
+
+            beds.forEach(bed => {
+                const row = createBedRow(bed);
+                container.innerHTML += row;
+            });
+        }
+
+        function createBedRow(bed) {
+            if (!bed.data) {
+                // Cama libre
+                return `
+                    <div class="bed-row libre">
+                        <div><span class="bed-number">${bed.number}</span></div>
+                        <div><span class="semaforo gris"></span></div>
+                        <div style="color: #666;">-- LIBRE --</div>
+                        <div>--</div>
+                        <div>--</div>
+                        <div>--</div>
+                        <div>--</div>
+                        <div>--</div>
+                        <div>--</div>
+                        <div>--</div>
+                        <div>--</div>
+                    </div>
+                `;
+            }
+
+            // Determinar estado del semáforo
+            let semaforoClass = 'verde';
+            let semaforoStatus = 'ÓPTIMO';
+            
+            if (bed.data.days_since_dressing >= 7 || bed.data.catheter_days > 7) {
+                semaforoClass = 'rojo';
+                semaforoStatus = 'CRÍTICO';
+            } else if (bed.data.days_since_dressing >= 4 || bed.data.catheter_days >= 4) {
+                semaforoClass = 'amarillo';
+                semaforoStatus = 'PRECAUCIÓN';
+            }
+
+            // Formatear fecha de inserción
+            const insertionDate = new Date(bed.data.insertion_date);
+            const formattedDate = insertionDate.toLocaleDateString('es-ES', { 
+                day: '2-digit', 
+                month: '2-digit',
+                year: '2-digit'
+            });
+
+            // Calcular próxima curación
+            let nextCuration = '--';
+            let nextCurationClass = '';
+            if (bed.data.days_since_dressing >= 7) {
+                nextCuration = 'HOY URGENTE';
+                nextCurationClass = 'days-danger';
+            } else if (bed.data.days_since_dressing === 6) {
+                nextCuration = 'MAÑANA';
+                nextCurationClass = 'days-warning';
+            } else {
+                const daysLeft = 7 - bed.data.days_since_dressing;
+                nextCuration = `En ${daysLeft} días`;
+                nextCurationClass = 'days-good';
+            }
+
+            // Determinar alertas
+            let alerts = [];
+            if (bed.data.days_since_dressing >= 7) {
+                alerts.push('<span class="alert-badge alert-urgent">CURACIÓN VENCIDA</span>');
+            }
+            if (bed.data.catheter_days > 7) {
+                alerts.push('<span class="alert-badge alert-warning">CVC >7 DÍAS</span>');
+            }
+            if (bed.data.alert_type === 'SIN INDICACIÓN') {
+                alerts.push('<span class="alert-badge alert-urgent">SIN INDICACIÓN</span>');
+            }
+            if (bed.data.alert_type === 'SITIO ALTERADO') {
+                alerts.push('<span class="alert-badge alert-urgent">SITIO ALTERADO</span>');
+            }
+
+            // Clase para días de catéter
+            let catheterDaysClass = 'days-good';
+            if (bed.data.catheter_days > 7) catheterDaysClass = 'days-danger';
+            else if (bed.data.catheter_days >= 4) catheterDaysClass = 'days-warning';
+
+            // Clase para días de curación
+            let dressingDaysClass = 'days-good';
+            if (bed.data.days_since_dressing >= 7) dressingDaysClass = 'days-danger';
+            else if (bed.data.days_since_dressing >= 4) dressingDaysClass = 'days-warning';
+
+            return `
+                <div class="bed-row">
+                    <div><span class="bed-number">${bed.number}</span></div>
+                    <div><span class="semaforo ${semaforoClass}"></span></div>
+                    <div class="patient-name">${bed.data.name}</div>
+                    <div>${bed.data.document}</div>
+                    <div>${formattedDate}</div>
+                    <div style="font-size: 12px;">${bed.data.access_type || 'N/A'}</div>
+                    <div><span class="days-badge ${catheterDaysClass}">${bed.data.catheter_days} días</span></div>
+                    <div><span class="days-badge ${dressingDaysClass}">${bed.data.days_since_dressing} días</span></div>
+                    <div><span class="days-badge ${nextCurationClass}">${nextCuration}</span></div>
+                    <div class="alert-badges">${alerts.length > 0 ? alerts.join('') : '<span style="color: #4caf50;">✓ OK</span>'}</div>
+                    <div class="action-buttons">
+                        <button class="btn-action btn-audit" onclick="goToAudit('${bed.data.document}')">Auditar</button>
+                        ${bed.data.days_since_dressing >= 6 ? 
+                            `<button class="btn-action btn-cure" onclick="alertCuration('${bed.data.name}')">Curación</button>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateStats(bedData) {
+            if (!bedData) {
+                document.getElementById('occupiedBeds').textContent = '0';
+                document.getElementById('avgCatheterDays').textContent = '0';
+                document.getElementById('criticalAlerts').textContent = '0';
+                document.getElementById('pendingCurations').textContent = '0';
+                document.getElementById('avgCompliance').textContent = '0%';
+                return;
+            }
+
+            const occupied = bedData.length;
+            const avgDays = bedData.length > 0 ? 
+                Math.round(bedData.reduce((sum, b) => sum + b.catheter_days, 0) / bedData.length) : 0;
+            
+            const critical = bedData.filter(b => 
+                b.days_since_dressing >= 7 || 
+                b.catheter_days > 7 ||
+                b.alert_type?.includes('URGENTE') ||
+                b.alert_type === 'SIN INDICACIÓN'
+            ).length;
+            
+            const pendingCure = bedData.filter(b => b.days_since_dressing >= 7).length;
+            
+            const avgCompliance = bedData.length > 0 && bedData[0].compliance ? 
+                Math.round(bedData.reduce((sum, b) => sum + (b.compliance || 0), 0) / bedData.length) : 0;
+
+            document.getElementById('occupiedBeds').textContent = occupied;
+            document.getElementById('avgCatheterDays').textContent = avgDays;
+            document.getElementById('criticalAlerts').textContent = critical;
+            document.getElementById('pendingCurations').textContent = pendingCure;
+            document.getElementById('avgCompliance').textContent = avgCompliance + '%';
+        }
+
+        function goToAudit(document) {
+            sessionStorage.setItem('patientToAudit', document);
+            window.location.href = 'index.html';
+        }
+
+        function alertCuration(patientName) {
+            alert(`⚠️ CURACIÓN REQUERIDA\n\nPaciente: ${patientName}\n\nPor favor, realizar curación según protocolo CDC/NHSN.`);
+        }
+
+        // Auto-actualizar cada 15 segundos
+        setInterval(loadDashboard, 15000);
+
+        // Cargar al iniciar
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+        });
+    </script>
+</body>
+</html>
