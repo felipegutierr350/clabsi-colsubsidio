@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema CLABSI UCI Pediátrica 2025 Clínica Infantil Colsubsidio</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
     <style>
         :root {
             --primary: #1976d2;
@@ -1071,7 +1071,7 @@
         const SUPABASE_URL = 'https://gkiwuznolmotbcxlmtod.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdraXd1em5vbG1vdGJjeGxtdG9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5NzQwMjAsImV4cCI6MjA3NDU1MDAyMH0.niDF1TYj3WN3CMgoPSxoFxykFY8GTWlhiopQKWlFZpc';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         
         let currentPatient = null;
 
