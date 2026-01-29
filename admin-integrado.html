@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Sistema IAAS Integrado - Clinica Infantil Colsubsidio</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --amarillo: #FDB913;
+            --azul: #003DA5;
+            --azul-oscuro: #001F5C;
+            --blanco: #ffffff;
+            --gris-claro: #f5f7fa;
+            --gris: #e0e0e0;
+            --error: #dc3545;
+            --success: #28a745;
+            --cvc-color: #3B82F6;
+            --sonda-color: #10B981;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul) 100%);
+            min-height: 100vh;
+            color: var(--blanco);
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+        #loginSection {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .login-box {
+            background: var(--blanco);
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            width: 380px;
+            box-shadow: 0 10px 40px rgba(0, 31, 92, 0.3);
+        }
+
+        .login-box h1 { color: var(--azul-oscuro); margin-bottom: 10px; font-size: 24px; }
+        .login-box p { color: #666; margin-bottom: 30px; }
+
+        .login-box input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--gris);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .login-box button {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--azul) 0%, var(--azul-oscuro) 100%);
+            color: var(--blanco);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .error-msg { color: var(--error); margin-top: 15px; display: none; }
+        .login-logo { margin-bottom: 20px; }
+        .login-logo img { height: 60px; }
+
+        #adminPanel { display: none; }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-title { display: flex; align-items: center; gap: 15px; }
+        .header-logo { background: var(--blanco); padding: 8px 12px; border-radius: 8px; }
+        .header-logo img { height: 40px; }
+        .header h1 { font-size: 22px; }
+        .header-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background: linear-gradient(135deg, var(--azul) 0%, var(--azul-oscuro) 100%); color: var(--blanco); }
+        .btn-success { background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%); color: var(--blanco); }
+        .btn-danger { background: linear-gradient(135deg, var(--error) 0%, #bd2130 100%); color: var(--blanco); }
+        .btn-warning { background: var(--amarillo); color: var(--azul-oscuro); }
+        .btn-secondary { background: var(--gris); color: var(--azul-oscuro); }
+        .btn-cvc { background: linear-gradient(135deg, var(--cvc-color) 0%, #1D4ED8 100%); color: var(--blanco); }
+        .btn-sonda { background: linear-gradient(135deg, var(--sonda-color) 0%, #059669 100%); color: var(--blanco); }
+
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .btn-sm { padding: 8px 12px; font-size: 12px; }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .tab:hover { background: rgba(255,255,255,0.2); }
+        .tab.active { background: var(--amarillo); color: var(--azul-oscuro); border-color: var(--amarillo); }
+        .tab.cvc.active { background: var(--cvc-color); color: white; border-color: var(--cvc-color); }
+        .tab.sonda.active { background: var(--sonda-color); color: white; border-color: var(--sonda-color); }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover { border-color: var(--amarillo); transform: translateY(-3px); }
+        .stat-card.cvc { border-left: 4px solid var(--cvc-color); }
+        .stat-card.sonda { border-left: 4px solid var(--sonda-color); }
+        .stat-card .number { font-size: 42px; font-weight: bold; color: var(--amarillo); }
+        .stat-card .label { color: rgba(255,255,255,0.8); margin-top: 5px; font-size: 14px; }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filters input, .filters select {
+            padding: 12px 15px;
+            border: 2px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: var(--blanco);
+            font-size: 14px;
+        }
+
+        .filters input::placeholder { color: rgba(255,255,255,0.6); }
+        .filters input:focus, .filters select:focus { outline: none; border-color: var(--amarillo); }
+        .filters select option { background: var(--azul-oscuro); color: var(--blanco); }
+        .filters input { width: 280px; }
+
+        .table-container {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        th { background: rgba(0,0,0,0.3); font-weight: 600; color: var(--amarillo); font-size: 14px; text-transform: uppercase; }
+        tr:hover { background: rgba(255,255,255,0.05); }
+
+        .status-active { color: var(--success); font-weight: bold; }
+        .status-removed { color: rgba(255,255,255,0.5); }
+        .actions { display: flex; gap: 5px; }
+
+        .device-badge {
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .device-badge.cvc { background: rgba(59, 130, 246, 0.3); color: var(--cvc-color); }
+        .device-badge.sonda { background: rgba(16, 185, 129, 0.3); color: var(--sonda-color); }
+
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 10000; }
+
+        .toast {
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: var(--blanco);
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease;
+            min-width: 300px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .toast-success { background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%); }
+        .toast-error { background: linear-gradient(135deg, var(--error) 0%, #bd2130 100%); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 31, 92, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--amarillo);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .hidden { display: none !important; }
+
+        @media (max-width: 768px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .header { flex-direction: column; text-align: center; }
+            .table-container { overflow-x: auto; }
+            .filters input { width: 100%; }
+            .tabs { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+    <div class="toast-container" id="toastContainer"></div>
+    <div class="loading-overlay hidden" id="loadingOverlay"><div class="loading-spinner"></div></div>
+
+    <div id="loginSection">
+        <div class="login-box">
+            <div class="login-logo"><img src="Logo_Colsubsidio.png" alt="Colsubsidio"></div>
+            <h1>Panel de Administracion</h1>
+            <p>Sistema IAAS Integrado - CVC + Sonda Vesical</p>
+            <input type="password" id="adminPassword" placeholder="Ingrese la clave" onkeypress="if(event.key==='Enter')login()">
+            <button onclick="login()">Ingresar</button>
+            <p class="error-msg" id="loginError">Clave incorrecta</p>
+        </div>
+    </div>
+
+    <div id="adminPanel" class="container">
+        <div class="header">
+            <div class="header-title">
+                <div class="header-logo"><img src="Logo_Colsubsidio.png" alt="Colsubsidio"></div>
+                <h1>Panel IAAS - CVC + Sonda Vesical</h1>
+            </div>
+            <div class="header-buttons">
+                <button class="btn btn-success" onclick="exportToExcel()">Exportar Excel</button>
+                <button class="btn btn-secondary" onclick="goToMain()">Volver al Sistema</button>
+                <button class="btn btn-danger" onclick="logout()">Salir</button>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card cvc">
+                <div class="number" id="totalCVC">0</div>
+                <div class="label">CVC Activos</div>
+            </div>
+            <div class="stat-card sonda">
+                <div class="number" id="totalSonda">0</div>
+                <div class="label">Sondas Activas</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalPatients">0</div>
+                <div class="label">Total Pacientes</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="removedDevices">0</div>
+                <div class="label">Retirados</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalAudits">0</div>
+                <div class="label">Auditorias</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('all')">Todos</div>
+            <div class="tab cvc" onclick="switchTab('cvc')">CVC</div>
+            <div class="tab sonda" onclick="switchTab('sonda')">Sonda Vesical</div>
+        </div>
+
+        <div class="filters">
+            <input type="text" id="searchFilter" placeholder="Buscar nombre o documento..." oninput="filterTable()">
+            <select id="statusFilter" onchange="filterTable()">
+                <option value="all">Todos</option>
+                <option value="active">Solo activos</option>
+                <option value="removed">Solo retirados</option>
+            </select>
+            <select id="serviceFilter" onchange="filterTable()">
+                <option value="all">Todos los servicios</option>
+                <option value="UCIP">UCIP</option>
+                <option value="Intermedios">Intermedios</option>
+                <option value="Hospitalizacion">Hospitalizacion</option>
+                <option value="UAME">UAME</option>
+                <option value="Urgencias">Urgencias</option>
+                <option value="Salas de Cirugia">Salas de Cirugia</option>
+            </select>
+            <button class="btn btn-primary" onclick="loadAllData()">Actualizar</button>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Documento</th>
+                        <th>Nombre</th>
+                        <th>Servicio</th>
+                        <th>Cama</th>
+                        <th>Dispositivo</th>
+                        <th>F.Insercion</th>
+                        <th>Dias</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="dataTable">
+                    <tr><td colspan="9" style="text-align:center;padding:40px;">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const ADMIN_PASSWORD = 'iaas2025';
+        const SUPABASE_URL = 'https://fiiqzezridpckpsueuew.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpaXF6ZXpyaWRwY2twc3VldWV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk2NDExMDksImV4cCI6MjA4NTIxNzEwOX0.BkhPPqbb4sPYljbqq0xB5aETuK8KHfC-rxQ6En2An9E';
+
+        var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let allData = [];
+        let currentTab = 'all';
+
+        function sanitizeHTML(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+        }
+
+        function showLoading() { document.getElementById('loadingOverlay').classList.remove('hidden'); }
+        function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast toast-' + type;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            return new Date(dateStr).toLocaleDateString('es-CO');
+        }
+
+        function login() {
+            const password = document.getElementById('adminPassword').value;
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                loadAllData();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+
+        function logout() {
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('loginSection').style.display = 'flex';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        function goToMain() { window.location.href = 'index-integrado.html'; }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab:nth-child(' + (tab === 'all' ? 1 : tab === 'cvc' ? 2 : 3) + ')').classList.add('active');
+            filterTable();
+        }
+
+        async function loadAllData() {
+            showLoading();
+            try {
+                // Load CVC patients
+                const { data: cvcPatients } = await supabase.from('patients').select('*').order('created_at', { ascending: false });
+
+                // Load Sonda patients
+                const { data: sondaPatients } = await supabase.from('sonda_patients').select('*').order('created_at', { ascending: false });
+
+                // Merge data
+                allData = [];
+
+                if (cvcPatients) {
+                    cvcPatients.forEach(p => {
+                        allData.push({
+                            ...p,
+                            deviceType: 'CVC',
+                            deviceDetail: p.access_type,
+                            isRemoved: p.catheter_removed
+                        });
+                    });
+                }
+
+                if (sondaPatients) {
+                    sondaPatients.forEach(p => {
+                        allData.push({
+                            ...p,
+                            deviceType: 'SONDA',
+                            deviceDetail: p.sonda_tipo + ' ' + p.sonda_calibre + 'Fr',
+                            isRemoved: p.sonda_removed
+                        });
+                    });
+                }
+
+                // Update stats
+                const activeCVC = cvcPatients ? cvcPatients.filter(p => !p.catheter_removed).length : 0;
+                const activeSonda = sondaPatients ? sondaPatients.filter(p => !p.sonda_removed).length : 0;
+                const removedCVC = cvcPatients ? cvcPatients.filter(p => p.catheter_removed).length : 0;
+                const removedSonda = sondaPatients ? sondaPatients.filter(p => p.sonda_removed).length : 0;
+
+                document.getElementById('totalCVC').textContent = activeCVC;
+                document.getElementById('totalSonda').textContent = activeSonda;
+                document.getElementById('totalPatients').textContent = activeCVC + activeSonda;
+                document.getElementById('removedDevices').textContent = removedCVC + removedSonda;
+
+                // Load audits count
+                const { data: cvcAudits } = await supabase.from('audits').select('id');
+                const { data: sondaAudits } = await supabase.from('sonda_audits').select('id');
+                document.getElementById('totalAudits').textContent = (cvcAudits ? cvcAudits.length : 0) + (sondaAudits ? sondaAudits.length : 0);
+
+                renderTable(allData);
+                hideLoading();
+            } catch (error) {
+                hideLoading();
+                showToast('Error de conexion', 'error');
+                console.error(error);
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('dataTable');
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;">No hay datos</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(p => {
+                const insertDate = new Date(p.insertion_date);
+                const today = p.isRemoved ? new Date(p.removal_date || new Date()) : new Date();
+                const days = Math.ceil((today - insertDate) / (1000 * 60 * 60 * 24));
+                const statusClass = p.isRemoved ? 'status-removed' : 'status-active';
+                const statusText = p.isRemoved ? 'Retirado' : 'Activo';
+                const badgeClass = p.deviceType === 'CVC' ? 'cvc' : 'sonda';
+
+                return '<tr>' +
+                    '<td>' + sanitizeHTML(p.document) + '</td>' +
+                    '<td>' + sanitizeHTML(p.name) + '</td>' +
+                    '<td>' + sanitizeHTML(p.service) + '</td>' +
+                    '<td>' + sanitizeHTML(p.bed || '-') + '</td>' +
+                    '<td><span class="device-badge ' + badgeClass + '">' + p.deviceType + '</span> ' + sanitizeHTML(p.deviceDetail) + '</td>' +
+                    '<td>' + formatDate(p.insertion_date) + '</td>' +
+                    '<td>' + days + '</td>' +
+                    '<td class="' + statusClass + '">' + statusText + '</td>' +
+                    '<td class="actions">' +
+                        '<button class="btn btn-primary btn-sm" onclick="viewHistory(\'' + p.document + '\', \'' + p.deviceType + '\')">Ver</button>' +
+                        (p.isRemoved ? '' : '<button class="btn btn-danger btn-sm" onclick="deleteRecord(\'' + p.document + '\', \'' + p.deviceType + '\')">Eliminar</button>') +
+                    '</td>' +
+                '</tr>';
+            }).join('');
+        }
+
+        function filterTable() {
+            const search = document.getElementById('searchFilter').value.toLowerCase();
+            const status = document.getElementById('statusFilter').value;
+            const service = document.getElementById('serviceFilter').value;
+
+            let filtered = allData;
+
+            // Filter by tab
+            if (currentTab === 'cvc') {
+                filtered = filtered.filter(p => p.deviceType === 'CVC');
+            } else if (currentTab === 'sonda') {
+                filtered = filtered.filter(p => p.deviceType === 'SONDA');
+            }
+
+            // Filter by search
+            if (search) {
+                filtered = filtered.filter(p =>
+                    p.name.toLowerCase().includes(search) ||
+                    p.document.toLowerCase().includes(search)
+                );
+            }
+
+            // Filter by status
+            if (status === 'active') {
+                filtered = filtered.filter(p => !p.isRemoved);
+            } else if (status === 'removed') {
+                filtered = filtered.filter(p => p.isRemoved);
+            }
+
+            // Filter by service
+            if (service !== 'all') {
+                filtered = filtered.filter(p => p.service === service);
+            }
+
+            renderTable(filtered);
+        }
+
+        async function deleteRecord(doc, deviceType) {
+            if (!confirm('Eliminar este registro de ' + deviceType + '?')) return;
+
+            showLoading();
+            try {
+                if (deviceType === 'CVC') {
+                    await supabase.from('audits').delete().eq('patient_doc', doc);
+                    await supabase.from('patients').delete().eq('document', doc);
+                } else {
+                    await supabase.from('sonda_audits').delete().eq('patient_doc', doc);
+                    await supabase.from('sonda_patients').delete().eq('document', doc);
+                }
+                hideLoading();
+                showToast('Registro eliminado', 'success');
+                loadAllData();
+            } catch (error) {
+                hideLoading();
+                showToast('Error: ' + error.message, 'error');
+            }
+        }
+
+        function viewHistory(doc, deviceType) {
+            alert('Historial de ' + deviceType + ' para documento: ' + doc + '\n\n(Funcionalidad en desarrollo)');
+        }
+
+        function exportToExcel() {
+            if (allData.length === 0) {
+                showToast('No hay datos para exportar', 'error');
+                return;
+            }
+
+            let csv = 'Documento,Nombre,Servicio,Cama,Dispositivo,Detalle,FechaInsercion,Estado,FechaRetiro,MotivoRetiro\n';
+
+            allData.forEach(p => {
+                const status = p.isRemoved ? 'Retirado' : 'Activo';
+                csv += '"' + p.document + '","' + p.name + '","' + p.service + '","' + (p.bed || '') + '","' +
+                       p.deviceType + '","' + p.deviceDetail + '","' + p.insertion_date + '","' + status + '","' +
+                       (p.removal_date || '') + '","' + (p.removal_reason || '') + '"\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'IAAS_Dispositivos_' + new Date().toISOString().split('T')[0] + '.csv';
+            link.click();
+
+            showToast('Archivo exportado', 'success');
+        }
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal').forEach(m => m.classList.remove('active'));
+            }
+        });
+    </script>
+</body>
+</html>

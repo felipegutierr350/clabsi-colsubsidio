@@ -1,0 +1,2243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema IAAS - CVC y Sonda Vesical - Clinica Infantil Colsubsidio</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
+    <style>
+        :root {
+            --amarillo: #FDB913;
+            --azul: #003DA5;
+            --azul-oscuro: #001F5C;
+            --blanco: #ffffff;
+            --gris-claro: #f5f7fa;
+            --gris: #e0e0e0;
+            --error: #dc3545;
+            --success: #28a745;
+            --cvc-color: #3B82F6;
+            --sonda-color: #10B981;
+            --purple: #8B5CF6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: var(--blanco);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 31, 92, 0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul) 100%);
+            color: var(--blanco);
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .header-logo {
+            background: var(--blanco);
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo img { height: 50px; width: auto; }
+
+        .header-text h1 { font-size: 22px; margin-bottom: 5px; }
+        .header-text p { font-size: 14px; opacity: 0.9; }
+
+        .content { padding: 25px; }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: var(--gris-claro);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid var(--gris);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--amarillo);
+        }
+
+        .stat-card.cvc { border-left: 4px solid var(--cvc-color); }
+        .stat-card.sonda { border-left: 4px solid var(--sonda-color); }
+
+        .stat-number { font-size: 28px; font-weight: bold; color: var(--azul); }
+        .stat-label { color: #666; margin-top: 5px; font-size: 12px; }
+
+        /* Device Selection */
+        .device-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .device-btn {
+            padding: 20px 30px;
+            border: 3px solid var(--gris);
+            background: var(--blanco);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            min-width: 180px;
+        }
+
+        .device-btn:hover { transform: translateY(-3px); }
+
+        .device-btn.cvc:hover, .device-btn.cvc.selected {
+            border-color: var(--cvc-color);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .device-btn.sonda:hover, .device-btn.sonda.selected {
+            border-color: var(--sonda-color);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .device-btn.ambos:hover, .device-btn.ambos.selected {
+            border-color: var(--purple);
+            background: rgba(139, 92, 246, 0.1);
+        }
+
+        .device-icon { font-size: 36px; display: block; margin-bottom: 8px; }
+        .device-name { font-weight: bold; color: var(--azul-oscuro); }
+
+        /* Choice Buttons */
+        .choice-section { margin: 30px 0; }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--azul-oscuro);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .choice-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .choice-btn {
+            padding: 30px 20px;
+            border: 2px solid var(--gris);
+            background: var(--blanco);
+            color: var(--azul-oscuro);
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .choice-btn:hover {
+            border-color: var(--amarillo);
+            background: rgba(253, 185, 19, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(253, 185, 19, 0.3);
+        }
+
+        .choice-btn.retiro { border-color: var(--error); }
+        .choice-btn.retiro:hover {
+            background: rgba(220, 53, 69, 0.1);
+            box-shadow: 0 5px 20px rgba(220, 53, 69, 0.3);
+        }
+
+        .choice-icon { font-size: 40px; display: block; margin-bottom: 10px; }
+
+        /* Form Styles */
+        .form-section { margin-top: 20px; }
+
+        .bundle-section {
+            border: 2px solid var(--gris);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .bundle-section.cvc-section { border-left: 4px solid var(--cvc-color); }
+        .bundle-section.sonda-section { border-left: 4px solid var(--sonda-color); }
+
+        .bundle-header {
+            background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul) 100%);
+            color: var(--blanco);
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .bundle-header.cvc-header { background: linear-gradient(135deg, var(--cvc-color) 0%, #1D4ED8 100%); }
+        .bundle-header.sonda-header { background: linear-gradient(135deg, var(--sonda-color) 0%, #059669 100%); }
+
+        .bundle-content { padding: 20px; }
+
+        .form-group { margin-bottom: 20px; }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--azul-oscuro);
+        }
+
+        .required { color: var(--error); }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--gris);
+            border-radius: 8px;
+            font-size: 16px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--azul);
+            box-shadow: 0 0 0 3px rgba(0, 61, 165, 0.1);
+        }
+
+        /* Radio Options */
+        .radio-group { display: flex; flex-direction: column; gap: 10px; }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border: 2px solid var(--gris);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .radio-option:hover {
+            border-color: var(--amarillo);
+            background: rgba(253, 185, 19, 0.1);
+        }
+
+        .radio-option.selected {
+            border-color: var(--amarillo);
+            background: rgba(253, 185, 19, 0.15);
+        }
+
+        .radio-option input {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            accent-color: var(--azul);
+        }
+
+        .radio-option.success { border-left: 4px solid var(--success); }
+        .radio-option.warning { border-left: 4px solid var(--amarillo); }
+        .radio-option.danger { border-left: 4px solid var(--error); }
+
+        /* Checkbox group for device selection */
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            padding: 15px 25px;
+            border: 3px solid var(--gris);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .checkbox-option:hover { transform: translateY(-2px); }
+
+        .checkbox-option.cvc:hover, .checkbox-option.cvc.selected {
+            border-color: var(--cvc-color);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .checkbox-option.sonda:hover, .checkbox-option.sonda.selected {
+            border-color: var(--sonda-color);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .checkbox-option input {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            accent-color: var(--azul);
+        }
+
+        .checkbox-label {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .checkbox-label strong { font-size: 16px; }
+        .checkbox-label small { color: #666; font-size: 12px; }
+
+        /* Buttons */
+        .btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--azul) 0%, var(--azul-oscuro) 100%);
+            color: var(--blanco);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 61, 165, 0.4);
+        }
+
+        .btn-secondary { background: var(--amarillo); color: var(--azul-oscuro); }
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(253, 185, 19, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--error) 0%, #bd2130 100%);
+            color: var(--blanco);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(220, 53, 69, 0.4);
+        }
+
+        .btn-back { background: var(--gris); color: var(--azul-oscuro); }
+        .btn-back:hover { background: #ccc; }
+
+        .btn-cvc {
+            background: linear-gradient(135deg, var(--cvc-color) 0%, #1D4ED8 100%);
+            color: var(--blanco);
+        }
+
+        .btn-sonda {
+            background: linear-gradient(135deg, var(--sonda-color) 0%, #059669 100%);
+            color: var(--blanco);
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.15);
+            border: 2px solid var(--error);
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background: rgba(253, 185, 19, 0.2);
+            border: 2px solid var(--amarillo);
+            color: #856404;
+        }
+
+        .alert-success {
+            background: rgba(40, 167, 69, 0.15);
+            border: 2px solid var(--success);
+            color: #155724;
+        }
+
+        .alert-info {
+            background: rgba(0, 61, 165, 0.1);
+            border: 2px solid var(--azul);
+            color: var(--azul-oscuro);
+        }
+
+        /* Patient Info Card */
+        .patient-info-card {
+            background: linear-gradient(135deg, rgba(0, 61, 165, 0.1) 0%, rgba(253, 185, 19, 0.1) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px solid var(--azul);
+        }
+
+        .patient-info-card h3 { color: var(--azul-oscuro); margin-bottom: 10px; }
+
+        /* Device badges */
+        .device-badges {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .device-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .device-badge.cvc {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--cvc-color);
+            border: 1px solid var(--cvc-color);
+        }
+
+        .device-badge.sonda {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--sonda-color);
+            border: 1px solid var(--sonda-color);
+        }
+
+        /* Days Display */
+        .catheter-days-display {
+            font-size: 36px;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 12px;
+        }
+
+        .days-normal {
+            background: rgba(40, 167, 69, 0.15);
+            color: var(--success);
+            border: 2px solid var(--success);
+        }
+
+        .days-warning {
+            background: rgba(253, 185, 19, 0.2);
+            color: #856404;
+            border: 2px solid var(--amarillo);
+        }
+
+        .days-danger {
+            background: rgba(220, 53, 69, 0.15);
+            color: var(--error);
+            border: 2px solid var(--error);
+        }
+
+        /* Dual days display */
+        .dual-days-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .dual-days-card {
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .dual-days-card.cvc {
+            background: rgba(59, 130, 246, 0.1);
+            border: 2px solid var(--cvc-color);
+        }
+
+        .dual-days-card.sonda {
+            background: rgba(16, 185, 129, 0.1);
+            border: 2px solid var(--sonda-color);
+        }
+
+        .dual-days-card .days-number {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .dual-days-card.cvc .days-number { color: var(--cvc-color); }
+        .dual-days-card.sonda .days-number { color: var(--sonda-color); }
+
+        .dual-days-card .days-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* Hidden */
+        .hidden { display: none !important; }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 31, 92, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--amarillo);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text { color: var(--blanco); margin-top: 15px; font-size: 16px; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+        }
+
+        .toast {
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: var(--blanco);
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 300px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .toast-success { background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%); }
+        .toast-error { background: linear-gradient(135deg, var(--error) 0%, #bd2130 100%); }
+        .toast-warning {
+            background: linear-gradient(135deg, var(--amarillo) 0%, #e0a800 100%);
+            color: var(--azul-oscuro);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Connection Indicator */
+        .connection-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .connection-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .connection-online { background: rgba(40, 167, 69, 0.2); color: var(--success); }
+        .connection-online .connection-dot { background: var(--success); }
+        .connection-offline { background: rgba(220, 53, 69, 0.2); color: var(--error); }
+        .connection-offline .connection-dot { background: var(--error); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Form Highlights */
+        .form-highlight {
+            background: rgba(253, 185, 19, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--amarillo);
+            margin-bottom: 20px;
+        }
+
+        .form-highlight-danger {
+            background: rgba(220, 53, 69, 0.1);
+            border-left-color: var(--error);
+        }
+
+        .form-highlight-info {
+            background: rgba(0, 61, 165, 0.1);
+            border-left-color: var(--azul);
+        }
+
+        .form-helper { font-size: 13px; color: #666; margin-top: 5px; }
+
+        .btn-group { display: flex; gap: 15px; margin-top: 25px; flex-wrap: wrap; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: var(--amarillo);
+            color: var(--azul-oscuro);
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        /* Separator */
+        .section-separator {
+            border-top: 3px dashed var(--gris);
+            margin: 30px 0;
+            position: relative;
+        }
+
+        .section-separator::after {
+            content: attr(data-label);
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--blanco);
+            padding: 0 15px;
+            color: #666;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header { flex-direction: column; text-align: center; }
+            .choice-buttons { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .btn-group { flex-direction: column; }
+            .btn { width: 100%; justify-content: center; }
+            .checkbox-group { flex-direction: column; }
+            .dual-days-container { grid-template-columns: 1fr; }
+        }
+
+        /* Curation fields animation */
+        .curation-fields { animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert-pulse { animation: alertPulse 2s infinite; }
+
+        @keyframes alertPulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Connection Indicator -->
+    <div class="connection-indicator connection-online" id="connectionIndicator">
+        <span class="connection-dot"></span>
+        <span id="connectionText">Conectado</span>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay hidden" id="loadingOverlay">
+        <div style="text-align: center;">
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="loadingText">Cargando...</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="header-logo"><img src="Logo_Colsubsidio.png" alt="Colsubsidio"></div>
+            <div class="header-text">
+                <h1>Sistema de Prevencion IAAS</h1>
+                <p>CVC (CLABSI) + Sonda Vesical (CAUTI) - Clinica Infantil Colsubsidio</p>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Estadisticas -->
+            <div class="stats-grid">
+                <div class="stat-card cvc">
+                    <div class="stat-number" id="statCVCActivos">0</div>
+                    <div class="stat-label">CVC Activos</div>
+                </div>
+                <div class="stat-card sonda">
+                    <div class="stat-number" id="statSondaActivos">0</div>
+                    <div class="stat-label">Sondas Activas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statAuditoriasHoy">0</div>
+                    <div class="stat-label">Auditorias Hoy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statCumplimiento">0%</div>
+                    <div class="stat-label">Cumplimiento</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="statAlertas">0</div>
+                    <div class="stat-label">Alertas</div>
+                </div>
+            </div>
+
+            <!-- Seleccion de tipo -->
+            <div id="selectType" class="choice-section">
+                <h2 class="section-title">Seleccione el tipo de auditoria</h2>
+                <div class="choice-buttons">
+                    <button class="choice-btn" onclick="startFirstTime()">
+                        <span class="choice-icon">+</span>
+                        PRIMERA VEZ
+                    </button>
+                    <button class="choice-btn" onclick="startFollowUp()">
+                        <span class="choice-icon">&#10003;</span>
+                        SEGUIMIENTO
+                    </button>
+                    <button class="choice-btn retiro" onclick="startRemoval()">
+                        <span class="choice-icon">&#10005;</span>
+                        RETIRO
+                    </button>
+                </div>
+            </div>
+
+            <!-- Busqueda de paciente -->
+            <div id="searchSection" class="hidden">
+                <div class="bundle-section">
+                    <div class="bundle-header">Buscar Paciente</div>
+                    <div class="bundle-content">
+                        <div class="form-group">
+                            <label>Documento del paciente <span class="required">*</span></label>
+                            <input type="text" id="searchDoc" placeholder="Ingrese numero de documento...">
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="searchPatient()">Buscar</button>
+                            <button class="btn btn-back" onclick="backToStart()">Volver</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="searchResult" class="hidden" style="margin-top: 20px;"></div>
+            </div>
+
+            <!-- FORMULARIO PRIMERA VEZ -->
+            <div id="firstTimeForm" class="hidden form-section">
+                <!-- Datos basicos del paciente -->
+                <div class="bundle-section">
+                    <div class="bundle-header">PRIMERA VEZ - Datos del Paciente</div>
+                    <div class="bundle-content">
+                        <div class="form-group">
+                            <label>Documento del paciente <span class="required">*</span></label>
+                            <input type="text" id="docFirst" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nombre del paciente <span class="required">*</span></label>
+                            <input type="text" id="nameFirst" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Servicio <span class="required">*</span></label>
+                            <select id="serviceFirst" required>
+                                <option value="UCIP">UCIP</option>
+                                <option value="Intermedios">Intermedios</option>
+                                <option value="Hospitalizacion">Hospitalizacion</option>
+                                <option value="UAME">UAME</option>
+                                <option value="Urgencias">Urgencias</option>
+                                <option value="Salas de Cirugia">Salas de Cirugia</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Cama <span class="required">*</span></label>
+                            <select id="bedFirst" required>
+                                <option value="">-- Seleccione cama --</option>
+                                <option value="1">Cama 1</option>
+                                <option value="2">Cama 2</option>
+                                <option value="3">Cama 3</option>
+                                <option value="4">Cama 4</option>
+                                <option value="5">Cama 5</option>
+                                <option value="6">Cama 6</option>
+                                <option value="7">Cama 7</option>
+                                <option value="8">Cama 8</option>
+                                <option value="9">Cama 9</option>
+                                <option value="10">Cama 10</option>
+                                <option value="11">Cama 11</option>
+                                <option value="12">Cama 12</option>
+                                <option value="13">Cama 13</option>
+                                <option value="14">Cama 14</option>
+                                <option value="15">Cama 15</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nombre del auditor <span class="required">*</span></label>
+                            <input type="text" id="auditorFirst" required>
+                        </div>
+
+                        <!-- Seleccion de dispositivos -->
+                        <div class="form-highlight">
+                            <label style="font-weight: bold; font-size: 16px;">Que dispositivo(s) va a registrar? <span class="required">*</span></label>
+                            <p class="form-helper">Puede seleccionar uno o ambos dispositivos</p>
+                            <div class="checkbox-group" style="margin-top: 15px;">
+                                <label class="checkbox-option cvc" id="checkCVCLabel">
+                                    <input type="checkbox" id="checkCVC" onchange="toggleDeviceForms()">
+                                    <div class="checkbox-label">
+                                        <strong>CVC - Cateter Venoso Central</strong>
+                                        <small>Prevencion de CLABSI</small>
+                                    </div>
+                                </label>
+                                <label class="checkbox-option sonda" id="checkSondaLabel">
+                                    <input type="checkbox" id="checkSonda" onchange="toggleDeviceForms()">
+                                    <div class="checkbox-label">
+                                        <strong>Sonda Vesical</strong>
+                                        <small>Prevencion de CAUTI</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCION CVC -->
+                <div id="cvcFirstTimeSection" class="hidden">
+                    <div class="bundle-section cvc-section">
+                        <div class="bundle-header cvc-header">CVC - Datos de Insercion</div>
+                        <div class="bundle-content">
+                            <div class="form-group">
+                                <label>Fecha de insercion del CVC <span class="required">*</span></label>
+                                <input type="date" id="cvcInsertionDate" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tipo de acceso <span class="required">*</span></label>
+                                <select id="cvcAccessType" required>
+                                    <option value="">-- Seleccione --</option>
+                                    <option value="YUGULAR">Yugular</option>
+                                    <option value="SUBCLAVIO">Subclavio</option>
+                                    <option value="FEMORAL">Femoral</option>
+                                    <option value="AXILAR">Axilar</option>
+                                    <option value="PICC CEFALICO">PICC Cefalico</option>
+                                    <option value="PICC BASILICO">PICC Basilico</option>
+                                    <option value="EPICUTANEO">Epicutaneo</option>
+                                    <option value="UMBILICAL">Umbilical</option>
+                                    <option value="IMPLANTABLE">Implantable</option>
+                                    <option value="MAHURKA">Cateter Mahurka</option>
+                                </select>
+                            </div>
+
+                            <div class="form-highlight">
+                                <label>La insercion del CVC es verificable? <span class="required">*</span></label>
+                                <p class="form-helper">Seleccione "No" si la insercion fue en otro servicio</p>
+                                <div class="radio-group" style="margin-top: 10px;">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="cvcInsertionVerifiable" value="Si" onchange="toggleCVCBundle()">
+                                        <span>Si - Puedo verificar el proceso de insercion</span>
+                                    </label>
+                                    <label class="radio-option warning">
+                                        <input type="radio" name="cvcInsertionVerifiable" value="No" onchange="toggleCVCBundle()">
+                                        <span>No - Insercion en otro servicio</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bundle CVC ANTES -->
+                    <div id="bundleCVCInsercion" class="hidden">
+                        <div class="bundle-section cvc-section">
+                            <div class="bundle-header cvc-header"><span class="badge">1</span> Bundle CVC - ANTES de Insercion</div>
+                            <div class="bundle-content">
+                                <div class="form-group">
+                                    <label>Se verifico indicacion y contraindicaciones?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="cvcVerify" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="cvcVerify" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Consentimiento informado firmado?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="cvcConsent" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="cvcConsent" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Lavado de manos segun protocolo?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="cvcHandwash" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="cvcHandwash" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Uso de EPP completo?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="cvcEpp" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="cvcEpp" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Se garantizo colaboracion del equipo?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="cvcTeam" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="cvcTeam" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bundle-section cvc-section">
+                            <div class="bundle-header cvc-header"><span class="badge">2</span> Bundle CVC - DESPUES de Insercion</div>
+                            <div class="bundle-content">
+                                <div class="form-group">
+                                    <label>Se presentaron complicaciones?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="cvcComplications" value="No"><span>No</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="cvcComplications" value="Si"><span>Si</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Se cumplieron normas de bioseguridad y tecnica aseptica?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="cvcBiosecurity" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="cvcBiosecurity" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Se preparo el cateter adecuadamente?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="cvcCatheterPrep" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="cvcCatheterPrep" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Se uso Clorhexidina 2% + alcohol 70%?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="cvcSkinPrep" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="cvcSkinPrep" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Se cubrio con sabana esteril de cabeza a pies?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="cvcSterileDrape" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="cvcSterileDrape" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Se dejo fijacion con datos estandarizados?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="cvcFixation" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="cvcFixation" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Se tomo Rx de torax/abdomen? (Neonatos)</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="cvcXray" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="cvcXray" value="No"><span>No</span></label>
+                                        <label class="radio-option"><input type="radio" name="cvcXray" value="NA"><span>No aplica</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SECCION SONDA VESICAL -->
+                <div id="sondaFirstTimeSection" class="hidden">
+                    <div class="bundle-section sonda-section">
+                        <div class="bundle-header sonda-header">SONDA VESICAL - Datos de Insercion</div>
+                        <div class="bundle-content">
+                            <div class="form-group">
+                                <label>Fecha de insercion de la sonda <span class="required">*</span></label>
+                                <input type="date" id="sondaInsertionDate" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tipo de sonda <span class="required">*</span></label>
+                                <select id="sondaTipo" required>
+                                    <option value="">-- Seleccione --</option>
+                                    <option value="FOLEY 2 VIAS">Foley 2 vias</option>
+                                    <option value="FOLEY 3 VIAS">Foley 3 vias</option>
+                                    <option value="SILICONA">Silicona</option>
+                                    <option value="NELATON">Nelaton (intermitente)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Calibre (French) <span class="required">*</span></label>
+                                <select id="sondaCalibre" required>
+                                    <option value="">-- Seleccione --</option>
+                                    <option value="6">6 Fr</option>
+                                    <option value="8">8 Fr</option>
+                                    <option value="10">10 Fr</option>
+                                    <option value="12">12 Fr</option>
+                                    <option value="14">14 Fr</option>
+                                    <option value="16">16 Fr</option>
+                                    <option value="18">18 Fr</option>
+                                    <option value="20">20 Fr</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Indicacion de la sonda <span class="required">*</span></label>
+                                <select id="sondaIndicacion" required>
+                                    <option value="">-- Seleccione --</option>
+                                    <option value="RETENCION_URINARIA">Retencion urinaria aguda</option>
+                                    <option value="CONTROL_DIURESIS">Control estricto de diuresis (UCI)</option>
+                                    <option value="CIRUGIA">Cirugia prolongada</option>
+                                    <option value="INCONTINENCIA">Incontinencia con ulceras</option>
+                                    <option value="IRRIGACION">Irrigacion vesical</option>
+                                    <option value="OBSTRUCCION">Obstruccion urinaria</option>
+                                    <option value="OTRO">Otra indicacion</option>
+                                </select>
+                            </div>
+
+                            <div class="form-highlight">
+                                <label>La insercion de la sonda es verificable? <span class="required">*</span></label>
+                                <div class="radio-group" style="margin-top: 10px;">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="sondaInsertionVerifiable" value="Si" onchange="toggleSondaBundle()">
+                                        <span>Si - Puedo verificar el proceso de insercion</span>
+                                    </label>
+                                    <label class="radio-option warning">
+                                        <input type="radio" name="sondaInsertionVerifiable" value="No" onchange="toggleSondaBundle()">
+                                        <span>No - Insercion en otro servicio</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bundle SONDA Insercion -->
+                    <div id="bundleSondaInsercion" class="hidden">
+                        <div class="bundle-section sonda-section">
+                            <div class="bundle-header sonda-header">Bundle CAUTI - Insercion de Sonda Vesical</div>
+                            <div class="bundle-content">
+                                <div class="form-group">
+                                    <label>Se verifico indicacion apropiada de la sonda?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="sondaVerifyIndication" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="sondaVerifyIndication" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Se realizo higiene de manos antes del procedimiento?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="sondaHandwash" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="sondaHandwash" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Se uso tecnica aseptica estricta?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="sondaAsepticTech" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="sondaAsepticTech" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Se realizo limpieza perineal/genital previa?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="sondaPerinealClean" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="sondaPerinealClean" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Se uso lubricante esteril?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="sondaLubricant" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="sondaLubricant" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Se conecto a sistema de drenaje cerrado?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="sondaClosedSystem" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="sondaClosedSystem" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Se fijo adecuadamente la sonda?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="sondaFixation" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="sondaFixation" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>La bolsa recolectora quedo por debajo del nivel de la vejiga?</label>
+                                    <div class="radio-group">
+                                        <label class="radio-option success"><input type="radio" name="sondaBagBelow" value="Si"><span>Si</span></label>
+                                        <label class="radio-option danger"><input type="radio" name="sondaBagBelow" value="No"><span>No</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="saveFirstTime()">Guardar Primera Vez</button>
+                    <button class="btn btn-back" onclick="backToStart()">Volver</button>
+                </div>
+            </div>
+
+            <!-- FORMULARIO SEGUIMIENTO -->
+            <div id="followUpForm" class="hidden form-section">
+                <div class="bundle-section">
+                    <div class="bundle-header">SEGUIMIENTO - Auditoria de Mantenimiento</div>
+                    <div class="bundle-content">
+                        <div id="patientInfoCard" class="patient-info-card"></div>
+                        <div id="daysDisplayContainer"></div>
+
+                        <div class="form-group">
+                            <label>Cama actual <span class="required">*</span></label>
+                            <select id="bedFollow" required>
+                                <option value="">-- Seleccione cama --</option>
+                                <option value="1">Cama 1</option>
+                                <option value="2">Cama 2</option>
+                                <option value="3">Cama 3</option>
+                                <option value="4">Cama 4</option>
+                                <option value="5">Cama 5</option>
+                                <option value="6">Cama 6</option>
+                                <option value="7">Cama 7</option>
+                                <option value="8">Cama 8</option>
+                                <option value="9">Cama 9</option>
+                                <option value="10">Cama 10</option>
+                                <option value="11">Cama 11</option>
+                                <option value="12">Cama 12</option>
+                                <option value="13">Cama 13</option>
+                                <option value="14">Cama 14</option>
+                                <option value="15">Cama 15</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nombre del auditor <span class="required">*</span></label>
+                            <input type="text" id="auditorFollow" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bundle CVC Seguimiento -->
+                <div id="cvcFollowUpSection" class="hidden">
+                    <div class="bundle-section cvc-section">
+                        <div class="bundle-header cvc-header">Bundle CVC - Mantenimiento CLABSI</div>
+                        <div class="bundle-content">
+                            <div class="form-group">
+                                <label><span class="badge">1</span> HIGIENE DE MANOS</label>
+                                <p class="form-helper">Se realizo antes y despues del contacto</p>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="cvcHygiene" value="Siempre"><span>Siempre</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="cvcHygiene" value="A veces"><span>A veces</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcHygiene" value="Nunca"><span>Nunca</span></label>
+                                </div>
+                            </div>
+
+                            <div class="form-highlight">
+                                <label><span class="badge">2</span> SCRUB THE HUB - Desinfeccion de puertos</label>
+                                <p class="form-helper">Minimo 15 segundos con alcohol 70%</p>
+                                <div class="radio-group" style="margin-top: 10px;">
+                                    <label class="radio-option success"><input type="radio" name="cvcHubDisinfection" value="Si-15seg"><span>Si - 15 segundos completos</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="cvcHubDisinfection" value="Si-menos15"><span>Si - Menos de 15 segundos</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcHubDisinfection" value="No"><span>NO REALIZADO</span></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label><span class="badge">3</span> INDICACION MEDICA DEL CVC</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="cvcContinue" value="Si"><span>SI - Mantener</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcContinue" value="No"><span>NO - Retirar en 24h</span></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label><span class="badge">4</span> ESTADO DEL APOSITO TRANSPARENTE</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="cvcDressing" value="Optimo"><span>Optimo - Integro y limpio</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="cvcDressing" value="Parcialmente-despegado"><span>Parcialmente despegado (>25%)</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcDressing" value="Humedo-sucio"><span>Humedo/Sucio - CAMBIAR</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcDressing" value="No-transparente"><span>No transparente - CAMBIAR</span></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label><span class="badge">5</span> VISIBILIDAD DEL PUNTO DE INSERCION</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="cvcVisible" value="Si"><span>Si - Completamente visible</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="cvcVisible" value="Parcial"><span>Parcialmente visible</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcVisible" value="No"><span>No visible - CURACION</span></label>
+                                </div>
+                            </div>
+
+                            <div class="form-highlight-danger">
+                                <label><span class="badge">6</span> ESTADO DEL SITIO DE INSERCION</label>
+                                <p class="form-helper">Evaluar signos de infeccion</p>
+                                <div class="radio-group" style="margin-top: 10px;">
+                                    <label class="radio-option success"><input type="radio" name="cvcSkin" value="Normal"><span>Normal - Sin signos de infeccion</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="cvcSkin" value="Eritema-leve"><span>Eritema leve</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcSkin" value="Signos-infeccion"><span>Enrojecimiento + calor/dolor</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcSkin" value="Secrecion-purulenta"><span>SECRECION PURULENTA</span></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label><span class="badge">7</span> BANO CON CLORHEXIDINA 2%</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="cvcBath" value="Si"><span>Si</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcBath" value="No"><span>No</span></label>
+                                    <label class="radio-option"><input type="radio" name="cvcBath" value="Contraindicado"><span>Contraindicado</span></label>
+                                </div>
+                            </div>
+
+                            <div class="form-highlight-info">
+                                <label>Fecha de ultima curacion CVC</label>
+                                <input type="date" id="cvcLastDressing" style="margin-top: 10px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bundle SONDA Seguimiento -->
+                <div id="sondaFollowUpSection" class="hidden">
+                    <div class="bundle-section sonda-section">
+                        <div class="bundle-header sonda-header">Bundle CAUTI - Mantenimiento Sonda Vesical</div>
+                        <div class="bundle-content">
+                            <div class="form-group">
+                                <label><span class="badge">1</span> INDICACION VIGENTE DE LA SONDA</label>
+                                <p class="form-helper">Evaluar diariamente la necesidad</p>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="sondaContinue" value="Si"><span>SI - Aun necesaria</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="sondaContinue" value="No"><span>NO - Retirar hoy</span></label>
+                                </div>
+                            </div>
+
+                            <div class="form-highlight">
+                                <label><span class="badge">2</span> SISTEMA DE DRENAJE CERRADO</label>
+                                <div class="radio-group" style="margin-top: 10px;">
+                                    <label class="radio-option success"><input type="radio" name="sondaClosed" value="Integro"><span>Integro - Sin desconexiones</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="sondaClosed" value="Abierto"><span>Se abrio/desconecto - CAMBIAR</span></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label><span class="badge">3</span> BOLSA RECOLECTORA</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="sondaBag" value="Correcta"><span>Por debajo del nivel de la vejiga</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="sondaBag" value="Incorrecta"><span>Por encima o al mismo nivel</span></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label><span class="badge">4</span> FIJACION DE LA SONDA</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="sondaFix" value="Adecuada"><span>Adecuada - Bien fijada</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="sondaFix" value="Inadecuada"><span>Inadecuada - Requiere ajuste</span></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label><span class="badge">5</span> HIGIENE DEL MEATO URETRAL</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="sondaMeatus" value="Limpio"><span>Limpio - Sin secreciones</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="sondaMeatus" value="Secrecion"><span>Con secrecion - Limpiar</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="sondaMeatus" value="Signos-infeccion"><span>Signos de infeccion</span></label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label><span class="badge">6</span> ASPECTO DE LA ORINA</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="sondaUrine" value="Clara"><span>Clara - Amarilla normal</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="sondaUrine" value="Turbia"><span>Turbia</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="sondaUrine" value="Hematica"><span>Hematica</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="sondaUrine" value="Piuria"><span>Piuria (pus)</span></label>
+                                </div>
+                            </div>
+
+                            <div class="form-highlight-danger">
+                                <label><span class="badge">7</span> SIGNOS DE INFECCION URINARIA</label>
+                                <div class="radio-group" style="margin-top: 10px;">
+                                    <label class="radio-option success"><input type="radio" name="sondaInfection" value="No"><span>No - Sin signos</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="sondaInfection" value="Sospecha"><span>Sospecha - Fiebre o sintomas</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="sondaInfection" value="Confirmado"><span>CAUTI confirmado</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Observaciones generales</label>
+                    <textarea id="followUpObservations" rows="3" placeholder="Observaciones adicionales..."></textarea>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="saveFollowUp()">Guardar Seguimiento</button>
+                    <button class="btn btn-back" onclick="backToStart()">Volver</button>
+                </div>
+            </div>
+
+            <!-- FORMULARIO RETIRO -->
+            <div id="removalForm" class="hidden form-section">
+                <div class="bundle-section">
+                    <div class="bundle-header" style="background: linear-gradient(135deg, var(--error) 0%, #bd2130 100%);">RETIRO DE DISPOSITIVO</div>
+                    <div class="bundle-content">
+                        <div id="patientInfoCardRemoval" class="patient-info-card"></div>
+                        <div id="daysDisplayRemoval"></div>
+
+                        <div class="form-highlight">
+                            <label style="font-weight: bold;">Que dispositivo(s) va a retirar?</label>
+                            <div class="checkbox-group" style="margin-top: 15px;">
+                                <label class="checkbox-option cvc hidden" id="removeCVCLabel">
+                                    <input type="checkbox" id="removeCVC">
+                                    <div class="checkbox-label">
+                                        <strong>CVC</strong>
+                                        <small>Cateter Venoso Central</small>
+                                    </div>
+                                </label>
+                                <label class="checkbox-option sonda hidden" id="removeSondaLabel">
+                                    <input type="checkbox" id="removeSonda">
+                                    <div class="checkbox-label">
+                                        <strong>Sonda Vesical</strong>
+                                        <small>Cateter urinario</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Retiro CVC -->
+                        <div id="cvcRemovalSection" class="hidden">
+                            <div class="section-separator" data-label="RETIRO CVC"></div>
+                            <div class="form-group">
+                                <label>Fecha de retiro CVC <span class="required">*</span></label>
+                                <input type="date" id="cvcRemovalDate">
+                            </div>
+                            <div class="form-group">
+                                <label>Motivo del retiro CVC</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="cvcRemovalReason" value="Fin de tratamiento"><span>Fin de tratamiento</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="cvcRemovalReason" value="Sospecha de infeccion"><span>Sospecha de infeccion</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcRemovalReason" value="CLABSI confirmado"><span>CLABSI confirmado</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="cvcRemovalReason" value="Mal funcionamiento"><span>Mal funcionamiento</span></label>
+                                    <label class="radio-option"><input type="radio" name="cvcRemovalReason" value="Otro"><span>Otro</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Se tomo cultivo de punta?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="cvcCulture" value="Si"><span>Si</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcCulture" value="No"><span>No</span></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Retiro Sonda -->
+                        <div id="sondaRemovalSection" class="hidden">
+                            <div class="section-separator" data-label="RETIRO SONDA VESICAL"></div>
+                            <div class="form-group">
+                                <label>Fecha de retiro Sonda <span class="required">*</span></label>
+                                <input type="date" id="sondaRemovalDate">
+                            </div>
+                            <div class="form-group">
+                                <label>Motivo del retiro Sonda</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="sondaRemovalReason" value="No indicacion"><span>Ya no hay indicacion</span></label>
+                                    <label class="radio-option success"><input type="radio" name="sondaRemovalReason" value="Movilizacion"><span>Movilizacion del paciente</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="sondaRemovalReason" value="Sospecha CAUTI"><span>Sospecha de CAUTI</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="sondaRemovalReason" value="CAUTI confirmado"><span>CAUTI confirmado</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="sondaRemovalReason" value="Obstruccion"><span>Obstruccion</span></label>
+                                    <label class="radio-option"><input type="radio" name="sondaRemovalReason" value="Otro"><span>Otro</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Se tomo urocultivo previo?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="sondaUroculture" value="Si"><span>Si</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="sondaUroculture" value="No"><span>No</span></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nombre del profesional que retiro</label>
+                            <input type="text" id="removalAuditor">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Observaciones del retiro</label>
+                            <textarea id="removalObservations" rows="3" placeholder="Detalles adicionales..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-danger" onclick="saveRemoval()">Registrar Retiro</button>
+                    <button class="btn btn-back" onclick="backToStart()">Volver</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====================================
+        // CONFIGURACION DE SUPABASE
+        // ====================================
+        const SUPABASE_URL = 'https://fiiqzezridpckpsueuew.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpaXF6ZXpyaWRwY2twc3VldWV3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk2NDExMDksImV4cCI6MjA4NTIxNzEwOX0.BkhPPqbb4sPYljbqq0xB5aETuK8KHfC-rxQ6En2An9E';
+
+        var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let currentPatient = null;
+        let currentCVC = null;
+        let currentSonda = null;
+
+        // ====================================
+        // UTILIDADES
+        // ====================================
+        function sanitizeHTML(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>"']/g, function(match) {
+                const escape = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+                return escape[match];
+            });
+        }
+
+        function daysBetween(date1, date2) {
+            const d1 = new Date(date1);
+            const d2 = new Date(date2);
+            d1.setHours(0,0,0,0);
+            d2.setHours(0,0,0,0);
+            return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        function showLoading(message = 'Cargando...') {
+            document.getElementById('loadingText').textContent = message;
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast toast-' + type;
+            toast.innerHTML = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function checkConnection() {
+            const indicator = document.getElementById('connectionIndicator');
+            const text = document.getElementById('connectionText');
+            if (navigator.onLine) {
+                indicator.className = 'connection-indicator connection-online';
+                text.textContent = 'Conectado';
+            } else {
+                indicator.className = 'connection-indicator connection-offline';
+                text.textContent = 'Sin conexion';
+            }
+        }
+
+        // ====================================
+        // ESTADISTICAS
+        // ====================================
+        async function loadStats() {
+            try {
+                // CVC Activos
+                const { data: cvcData } = await supabase.from('patients').select('*').eq('catheter_removed', false);
+                document.getElementById('statCVCActivos').textContent = cvcData ? cvcData.length : 0;
+
+                // Sonda Activas
+                const { data: sondaData } = await supabase.from('sonda_patients').select('*').eq('sonda_removed', false);
+                document.getElementById('statSondaActivos').textContent = sondaData ? sondaData.length : 0;
+
+                // Auditorias hoy
+                const today = new Date().toISOString().split('T')[0];
+                const { data: auditsToday } = await supabase.from('audits').select('id').gte('created_at', today);
+                const { data: sondaAuditsToday } = await supabase.from('sonda_audits').select('id').gte('created_at', today);
+                const totalAudits = (auditsToday ? auditsToday.length : 0) + (sondaAuditsToday ? sondaAuditsToday.length : 0);
+                document.getElementById('statAuditoriasHoy').textContent = totalAudits;
+
+                document.getElementById('statCumplimiento').textContent = '-';
+                document.getElementById('statAlertas').textContent = '0';
+
+            } catch (error) {
+                console.error('Error cargando estadisticas:', error);
+            }
+        }
+
+        // ====================================
+        // NAVEGACION
+        // ====================================
+        function startFirstTime() {
+            hideAll();
+            document.getElementById('firstTimeForm').classList.remove('hidden');
+            document.getElementById('docFirst').focus();
+        }
+
+        function startFollowUp() {
+            hideAll();
+            document.getElementById('searchSection').classList.remove('hidden');
+            document.getElementById('searchDoc').focus();
+            window.searchMode = 'followup';
+        }
+
+        function startRemoval() {
+            hideAll();
+            document.getElementById('searchSection').classList.remove('hidden');
+            document.getElementById('searchDoc').focus();
+            window.searchMode = 'removal';
+        }
+
+        function backToStart() {
+            hideAll();
+            document.getElementById('selectType').classList.remove('hidden');
+            currentPatient = null;
+            currentCVC = null;
+            currentSonda = null;
+            window.searchMode = null;
+
+            // Reset forms
+            document.querySelectorAll('input[type="text"], input[type="date"], textarea').forEach(input => input.value = '');
+            document.querySelectorAll('input[type="radio"], input[type="checkbox"]').forEach(input => input.checked = false);
+            document.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+            document.querySelectorAll('.checkbox-option').forEach(opt => opt.classList.remove('selected'));
+
+            // Hide device sections
+            document.getElementById('cvcFirstTimeSection').classList.add('hidden');
+            document.getElementById('sondaFirstTimeSection').classList.add('hidden');
+            document.getElementById('bundleCVCInsercion').classList.add('hidden');
+            document.getElementById('bundleSondaInsercion').classList.add('hidden');
+
+            loadStats();
+        }
+
+        function hideAll() {
+            document.getElementById('selectType').classList.add('hidden');
+            document.getElementById('searchSection').classList.add('hidden');
+            document.getElementById('firstTimeForm').classList.add('hidden');
+            document.getElementById('followUpForm').classList.add('hidden');
+            document.getElementById('removalForm').classList.add('hidden');
+        }
+
+        // ====================================
+        // TOGGLE DEVICE FORMS
+        // ====================================
+        function toggleDeviceForms() {
+            const cvcChecked = document.getElementById('checkCVC').checked;
+            const sondaChecked = document.getElementById('checkSonda').checked;
+
+            document.getElementById('checkCVCLabel').classList.toggle('selected', cvcChecked);
+            document.getElementById('checkSondaLabel').classList.toggle('selected', sondaChecked);
+
+            document.getElementById('cvcFirstTimeSection').classList.toggle('hidden', !cvcChecked);
+            document.getElementById('sondaFirstTimeSection').classList.toggle('hidden', !sondaChecked);
+        }
+
+        function toggleCVCBundle() {
+            const verifiable = document.querySelector('input[name="cvcInsertionVerifiable"]:checked');
+            if (verifiable && verifiable.value === 'Si') {
+                document.getElementById('bundleCVCInsercion').classList.remove('hidden');
+            } else {
+                document.getElementById('bundleCVCInsercion').classList.add('hidden');
+            }
+        }
+
+        function toggleSondaBundle() {
+            const verifiable = document.querySelector('input[name="sondaInsertionVerifiable"]:checked');
+            if (verifiable && verifiable.value === 'Si') {
+                document.getElementById('bundleSondaInsercion').classList.remove('hidden');
+            } else {
+                document.getElementById('bundleSondaInsercion').classList.add('hidden');
+            }
+        }
+
+        function toggleRemovalSections() {
+            const cvcChecked = document.getElementById('removeCVC').checked;
+            const sondaChecked = document.getElementById('removeSonda').checked;
+
+            document.getElementById('removeCVCLabel').classList.toggle('selected', cvcChecked);
+            document.getElementById('removeSondaLabel').classList.toggle('selected', sondaChecked);
+
+            document.getElementById('cvcRemovalSection').classList.toggle('hidden', !cvcChecked);
+            document.getElementById('sondaRemovalSection').classList.toggle('hidden', !sondaChecked);
+        }
+
+        // ====================================
+        // BUSQUEDA DE PACIENTE
+        // ====================================
+        async function searchPatient() {
+            const doc = document.getElementById('searchDoc').value.trim();
+            if (!doc) {
+                showToast('Ingrese un numero de documento', 'error');
+                return;
+            }
+
+            showLoading('Buscando paciente...');
+
+            // Buscar en CVC
+            const { data: cvcPatient } = await supabase
+                .from('patients')
+                .select('*')
+                .eq('document', doc)
+                .eq('catheter_removed', false)
+                .single();
+
+            // Buscar en Sonda
+            const { data: sondaPatient } = await supabase
+                .from('sonda_patients')
+                .select('*')
+                .eq('document', doc)
+                .eq('sonda_removed', false)
+                .single();
+
+            hideLoading();
+
+            if (!cvcPatient && !sondaPatient) {
+                showToast('Paciente no encontrado con dispositivos activos. Registre PRIMERA VEZ primero.', 'error');
+                return;
+            }
+
+            currentCVC = cvcPatient;
+            currentSonda = sondaPatient;
+            currentPatient = cvcPatient || sondaPatient;
+
+            if (window.searchMode === 'removal') {
+                showRemovalForm();
+            } else {
+                showFollowUpForm();
+            }
+        }
+
+        function showFollowUpForm() {
+            hideAll();
+
+            // Build patient info card
+            let infoHTML = '<h3>' + sanitizeHTML(currentPatient.name) + '</h3>';
+            infoHTML += '<div style="margin-top: 10px;"><strong>Documento:</strong> ' + sanitizeHTML(currentPatient.document) + '</div>';
+            infoHTML += '<div class="device-badges">';
+
+            let daysHTML = '<div class="dual-days-container">';
+
+            if (currentCVC) {
+                const cvcDays = daysBetween(currentCVC.insertion_date, new Date());
+                infoHTML += '<span class="device-badge cvc">CVC: ' + currentCVC.access_type + '</span>';
+                daysHTML += '<div class="dual-days-card cvc"><div class="days-number">' + cvcDays + '</div><div class="days-label">Dias con CVC</div></div>';
+                document.getElementById('cvcFollowUpSection').classList.remove('hidden');
+            } else {
+                document.getElementById('cvcFollowUpSection').classList.add('hidden');
+            }
+
+            if (currentSonda) {
+                const sondaDays = daysBetween(currentSonda.insertion_date, new Date());
+                infoHTML += '<span class="device-badge sonda">Sonda: ' + currentSonda.sonda_tipo + '</span>';
+                daysHTML += '<div class="dual-days-card sonda"><div class="days-number">' + sondaDays + '</div><div class="days-label">Dias con Sonda</div></div>';
+                document.getElementById('sondaFollowUpSection').classList.remove('hidden');
+            } else {
+                document.getElementById('sondaFollowUpSection').classList.add('hidden');
+            }
+
+            infoHTML += '</div>';
+            daysHTML += '</div>';
+
+            document.getElementById('patientInfoCard').innerHTML = infoHTML;
+            document.getElementById('daysDisplayContainer').innerHTML = daysHTML;
+
+            if (currentPatient.bed) {
+                document.getElementById('bedFollow').value = currentPatient.bed;
+            }
+
+            document.getElementById('followUpForm').classList.remove('hidden');
+        }
+
+        function showRemovalForm() {
+            hideAll();
+
+            let infoHTML = '<h3>' + sanitizeHTML(currentPatient.name) + '</h3>';
+            infoHTML += '<div style="margin-top: 10px;"><strong>Documento:</strong> ' + sanitizeHTML(currentPatient.document) + '</div>';
+            infoHTML += '<div class="device-badges">';
+
+            let daysHTML = '<div class="dual-days-container">';
+
+            if (currentCVC) {
+                const cvcDays = daysBetween(currentCVC.insertion_date, new Date());
+                infoHTML += '<span class="device-badge cvc">CVC: ' + currentCVC.access_type + ' - ' + cvcDays + ' dias</span>';
+                daysHTML += '<div class="dual-days-card cvc"><div class="days-number">' + cvcDays + '</div><div class="days-label">Dias con CVC</div></div>';
+                document.getElementById('removeCVCLabel').classList.remove('hidden');
+                document.getElementById('cvcRemovalDate').value = new Date().toISOString().split('T')[0];
+            } else {
+                document.getElementById('removeCVCLabel').classList.add('hidden');
+            }
+
+            if (currentSonda) {
+                const sondaDays = daysBetween(currentSonda.insertion_date, new Date());
+                infoHTML += '<span class="device-badge sonda">Sonda: ' + currentSonda.sonda_tipo + ' - ' + sondaDays + ' dias</span>';
+                daysHTML += '<div class="dual-days-card sonda"><div class="days-number">' + sondaDays + '</div><div class="days-label">Dias con Sonda</div></div>';
+                document.getElementById('removeSondaLabel').classList.remove('hidden');
+                document.getElementById('sondaRemovalDate').value = new Date().toISOString().split('T')[0];
+            } else {
+                document.getElementById('removeSondaLabel').classList.add('hidden');
+            }
+
+            infoHTML += '</div>';
+            daysHTML += '</div>';
+
+            document.getElementById('patientInfoCardRemoval').innerHTML = infoHTML;
+            document.getElementById('daysDisplayRemoval').innerHTML = daysHTML;
+
+            // Add event listeners for checkboxes
+            document.getElementById('removeCVC').addEventListener('change', toggleRemovalSections);
+            document.getElementById('removeSonda').addEventListener('change', toggleRemovalSections);
+
+            document.getElementById('removalForm').classList.remove('hidden');
+        }
+
+        // ====================================
+        // GUARDAR PRIMERA VEZ
+        // ====================================
+        async function saveFirstTime() {
+            const cvcChecked = document.getElementById('checkCVC').checked;
+            const sondaChecked = document.getElementById('checkSonda').checked;
+
+            if (!cvcChecked && !sondaChecked) {
+                showToast('Seleccione al menos un dispositivo', 'error');
+                return;
+            }
+
+            // Validate basic fields
+            if (!document.getElementById('docFirst').value || !document.getElementById('nameFirst').value ||
+                !document.getElementById('bedFirst').value || !document.getElementById('auditorFirst').value) {
+                showToast('Complete todos los campos del paciente', 'error');
+                return;
+            }
+
+            showLoading('Guardando registro...');
+
+            const patientDoc = document.getElementById('docFirst').value.trim();
+            const patientName = document.getElementById('nameFirst').value.trim();
+            const service = document.getElementById('serviceFirst').value;
+            const bed = document.getElementById('bedFirst').value;
+            const auditor = document.getElementById('auditorFirst').value.trim();
+
+            try {
+                // Save CVC if checked
+                if (cvcChecked) {
+                    const cvcDate = document.getElementById('cvcInsertionDate').value;
+                    const cvcType = document.getElementById('cvcAccessType').value;
+
+                    if (!cvcDate || !cvcType) {
+                        hideLoading();
+                        showToast('Complete los datos del CVC', 'error');
+                        return;
+                    }
+
+                    const cvcData = {
+                        document: patientDoc,
+                        name: patientName,
+                        service: service,
+                        bed: bed,
+                        insertion_date: cvcDate,
+                        access_type: cvcType,
+                        last_dressing_date: cvcDate,
+                        last_dressing_by: auditor,
+                        catheter_removed: false
+                    };
+
+                    // Check if exists
+                    const { data: existing } = await supabase.from('patients').select('*').eq('document', patientDoc).eq('catheter_removed', false).single();
+
+                    if (existing) {
+                        if (!confirm('Este paciente ya tiene un CVC activo. Desea actualizar el registro?')) {
+                            hideLoading();
+                            return;
+                        }
+                        await supabase.from('patients').update(cvcData).eq('document', patientDoc);
+                    } else {
+                        await supabase.from('patients').insert(cvcData);
+                    }
+
+                    // Save CVC audit
+                    const cvcVerifiable = document.querySelector('input[name="cvcInsertionVerifiable"]:checked');
+                    const isVerifiable = cvcVerifiable && cvcVerifiable.value === 'Si';
+
+                    let cvcBundleData = {
+                        device_type: 'CVC',
+                        insertion_verifiable: cvcVerifiable ? cvcVerifiable.value : 'No'
+                    };
+
+                    let cvcCompliance = null;
+                    if (isVerifiable) {
+                        // Capturar todas las respuestas del bundle
+                        cvcBundleData.verify_indication = document.querySelector('input[name="cvcVerify"]:checked')?.value || '';
+                        cvcBundleData.informed_consent = document.querySelector('input[name="cvcConsent"]:checked')?.value || '';
+                        cvcBundleData.hand_washing = document.querySelector('input[name="cvcHandwash"]:checked')?.value || '';
+                        cvcBundleData.epp_use = document.querySelector('input[name="cvcEpp"]:checked')?.value || '';
+                        cvcBundleData.team_collaboration = document.querySelector('input[name="cvcTeam"]:checked')?.value || '';
+                        cvcBundleData.complications = document.querySelector('input[name="cvcComplications"]:checked')?.value || '';
+                        cvcBundleData.biosecurity = document.querySelector('input[name="cvcBiosecurity"]:checked')?.value || '';
+                        cvcBundleData.catheter_preparation = document.querySelector('input[name="cvcCatheterPrep"]:checked')?.value || '';
+                        cvcBundleData.skin_preparation = document.querySelector('input[name="cvcSkinPrep"]:checked')?.value || '';
+                        cvcBundleData.sterile_drape = document.querySelector('input[name="cvcSterileDrape"]:checked')?.value || '';
+                        cvcBundleData.standard_fixation = document.querySelector('input[name="cvcFixation"]:checked')?.value || '';
+                        cvcBundleData.xray_taken = document.querySelector('input[name="cvcXray"]:checked')?.value || '';
+
+                        // Calcular cumplimiento
+                        let points = 0;
+                        let maxPoints = 12;
+                        if (cvcBundleData.verify_indication === 'Si') points++;
+                        if (cvcBundleData.informed_consent === 'Si') points++;
+                        if (cvcBundleData.hand_washing === 'Si') points++;
+                        if (cvcBundleData.epp_use === 'Si') points++;
+                        if (cvcBundleData.team_collaboration === 'Si') points++;
+                        if (cvcBundleData.complications === 'No') points++;
+                        if (cvcBundleData.biosecurity === 'Si') points++;
+                        if (cvcBundleData.catheter_preparation === 'Si') points++;
+                        if (cvcBundleData.skin_preparation === 'Si') points++;
+                        if (cvcBundleData.sterile_drape === 'Si') points++;
+                        if (cvcBundleData.standard_fixation === 'Si') points++;
+                        if (cvcBundleData.xray_taken === 'Si') points++;
+                        else if (cvcBundleData.xray_taken === 'NA') maxPoints--;
+
+                        cvcCompliance = Math.round((points / maxPoints) * 100);
+                    }
+
+                    await supabase.from('audits').insert({
+                        patient_doc: patientDoc,
+                        audit_type: 'primera_vez',
+                        auditor: auditor,
+                        bed: bed,
+                        catheter_days: 0,
+                        bundle_data: cvcBundleData,
+                        compliance: cvcCompliance,
+                        needs_attention: cvcCompliance !== null && cvcCompliance < 100
+                    });
+                }
+
+                // Save Sonda if checked
+                if (sondaChecked) {
+                    const sondaDate = document.getElementById('sondaInsertionDate').value;
+                    const sondaTipo = document.getElementById('sondaTipo').value;
+                    const sondaCalibre = document.getElementById('sondaCalibre').value;
+                    const sondaIndicacion = document.getElementById('sondaIndicacion').value;
+
+                    if (!sondaDate || !sondaTipo || !sondaCalibre || !sondaIndicacion) {
+                        hideLoading();
+                        showToast('Complete los datos de la Sonda Vesical', 'error');
+                        return;
+                    }
+
+                    const sondaData = {
+                        document: patientDoc,
+                        name: patientName,
+                        service: service,
+                        bed: bed,
+                        insertion_date: sondaDate,
+                        sonda_tipo: sondaTipo,
+                        sonda_calibre: sondaCalibre,
+                        sonda_indicacion: sondaIndicacion,
+                        sonda_removed: false
+                    };
+
+                    // Check if exists
+                    const { data: existingSonda } = await supabase.from('sonda_patients').select('*').eq('document', patientDoc).eq('sonda_removed', false).single();
+
+                    if (existingSonda) {
+                        if (!confirm('Este paciente ya tiene una Sonda activa. Desea actualizar el registro?')) {
+                            hideLoading();
+                            return;
+                        }
+                        await supabase.from('sonda_patients').update(sondaData).eq('document', patientDoc);
+                    } else {
+                        await supabase.from('sonda_patients').insert(sondaData);
+                    }
+
+                    // Save Sonda audit
+                    const sondaVerifiable = document.querySelector('input[name="sondaInsertionVerifiable"]:checked');
+                    const isSondaVerifiable = sondaVerifiable && sondaVerifiable.value === 'Si';
+
+                    let sondaBundleData = {
+                        device_type: 'SONDA',
+                        sonda_tipo: sondaTipo,
+                        sonda_calibre: sondaCalibre,
+                        sonda_indicacion: sondaIndicacion,
+                        insertion_verifiable: sondaVerifiable ? sondaVerifiable.value : 'No'
+                    };
+
+                    let sondaCompliance = null;
+                    if (isSondaVerifiable) {
+                        // Capturar todas las respuestas del bundle CAUTI
+                        sondaBundleData.verify_indication = document.querySelector('input[name="sondaVerifyIndication"]:checked')?.value || '';
+                        sondaBundleData.hand_washing = document.querySelector('input[name="sondaHandwash"]:checked')?.value || '';
+                        sondaBundleData.aseptic_technique = document.querySelector('input[name="sondaAsepticTech"]:checked')?.value || '';
+                        sondaBundleData.perineal_cleaning = document.querySelector('input[name="sondaPerinealClean"]:checked')?.value || '';
+                        sondaBundleData.sterile_lubricant = document.querySelector('input[name="sondaLubricant"]:checked')?.value || '';
+                        sondaBundleData.closed_system = document.querySelector('input[name="sondaClosedSystem"]:checked')?.value || '';
+                        sondaBundleData.proper_fixation = document.querySelector('input[name="sondaFixation"]:checked')?.value || '';
+                        sondaBundleData.bag_below_bladder = document.querySelector('input[name="sondaBagBelow"]:checked')?.value || '';
+
+                        // Calcular cumplimiento
+                        let points = 0;
+                        const maxPoints = 8;
+                        if (sondaBundleData.verify_indication === 'Si') points++;
+                        if (sondaBundleData.hand_washing === 'Si') points++;
+                        if (sondaBundleData.aseptic_technique === 'Si') points++;
+                        if (sondaBundleData.perineal_cleaning === 'Si') points++;
+                        if (sondaBundleData.sterile_lubricant === 'Si') points++;
+                        if (sondaBundleData.closed_system === 'Si') points++;
+                        if (sondaBundleData.proper_fixation === 'Si') points++;
+                        if (sondaBundleData.bag_below_bladder === 'Si') points++;
+
+                        sondaCompliance = Math.round((points / maxPoints) * 100);
+                    }
+
+                    await supabase.from('sonda_audits').insert({
+                        patient_doc: patientDoc,
+                        audit_type: 'primera_vez',
+                        auditor: auditor,
+                        bed: bed,
+                        sonda_days: 0,
+                        bundle_data: sondaBundleData,
+                        compliance: sondaCompliance,
+                        needs_attention: sondaCompliance !== null && sondaCompliance < 100
+                    });
+                }
+
+                hideLoading();
+                let msg = 'Registro guardado: ';
+                if (cvcChecked) msg += 'CVC ';
+                if (sondaChecked) msg += 'Sonda Vesical';
+                showToast(msg, 'success');
+                backToStart();
+
+            } catch (error) {
+                hideLoading();
+                showToast('Error: ' + error.message, 'error');
+            }
+        }
+
+        // ====================================
+        // GUARDAR SEGUIMIENTO
+        // ====================================
+        async function saveFollowUp() {
+            if (!document.getElementById('bedFollow').value || !document.getElementById('auditorFollow').value) {
+                showToast('Complete cama y auditor', 'error');
+                return;
+            }
+
+            showLoading('Guardando seguimiento...');
+
+            const bed = document.getElementById('bedFollow').value;
+            const auditor = document.getElementById('auditorFollow').value.trim();
+            const observations = document.getElementById('followUpObservations').value;
+
+            try {
+                // Save CVC follow-up if applicable
+                if (currentCVC) {
+                    const cvcDays = daysBetween(currentCVC.insertion_date, new Date());
+
+                    // Capturar valores
+                    const cvcHygiene = document.querySelector('input[name="cvcHygiene"]:checked')?.value || '';
+                    const cvcHub = document.querySelector('input[name="cvcHubDisinfection"]:checked')?.value || '';
+                    const cvcContinue = document.querySelector('input[name="cvcContinue"]:checked')?.value || '';
+                    const cvcDressing = document.querySelector('input[name="cvcDressing"]:checked')?.value || '';
+                    const cvcVisible = document.querySelector('input[name="cvcVisible"]:checked')?.value || '';
+                    const cvcSkin = document.querySelector('input[name="cvcSkin"]:checked')?.value || '';
+                    const cvcBath = document.querySelector('input[name="cvcBath"]:checked')?.value || '';
+
+                    // Calcular cumplimiento CVC
+                    let cvcPoints = 0;
+                    let cvcMax = 7;
+                    if (cvcHygiene === 'Siempre') cvcPoints++;
+                    if (cvcHub === 'Si-15seg') cvcPoints++;
+                    if (cvcContinue === 'Si') cvcPoints++;
+                    if (cvcDressing === 'Optimo') cvcPoints++;
+                    if (cvcVisible === 'Si') cvcPoints++;
+                    if (cvcSkin === 'Normal') cvcPoints++;
+                    if (cvcBath === 'Si') cvcPoints++;
+                    else if (cvcBath === 'Contraindicado') cvcMax--;
+
+                    const cvcCompliance = Math.round((cvcPoints / cvcMax) * 100);
+
+                    const cvcAudit = {
+                        patient_doc: currentCVC.document,
+                        audit_type: 'seguimiento',
+                        auditor: auditor,
+                        bed: bed,
+                        catheter_days: cvcDays,
+                        bundle_data: {
+                            device_type: 'CVC',
+                            hygiene: cvcHygiene,
+                            hub_disinfection: cvcHub,
+                            continue: cvcContinue,
+                            dressing: cvcDressing,
+                            visible: cvcVisible,
+                            skin: cvcSkin,
+                            bath: cvcBath,
+                            observations: observations
+                        },
+                        compliance: cvcCompliance,
+                        needs_attention: cvcContinue === 'No' || cvcSkin === 'Secrecion-purulenta' || cvcSkin === 'Signos-infeccion' || cvcDays > 7
+                    };
+
+                    await supabase.from('audits').insert(cvcAudit);
+                    await supabase.from('patients').update({ bed: bed }).eq('document', currentCVC.document);
+                }
+
+                // Save Sonda follow-up if applicable
+                if (currentSonda) {
+                    const sondaDays = daysBetween(currentSonda.insertion_date, new Date());
+
+                    // Capturar valores
+                    const sondaContinue = document.querySelector('input[name="sondaContinue"]:checked')?.value || '';
+                    const sondaClosed = document.querySelector('input[name="sondaClosed"]:checked')?.value || '';
+                    const sondaBag = document.querySelector('input[name="sondaBag"]:checked')?.value || '';
+                    const sondaFix = document.querySelector('input[name="sondaFix"]:checked')?.value || '';
+                    const sondaMeatus = document.querySelector('input[name="sondaMeatus"]:checked')?.value || '';
+                    const sondaUrine = document.querySelector('input[name="sondaUrine"]:checked')?.value || '';
+                    const sondaInfection = document.querySelector('input[name="sondaInfection"]:checked')?.value || '';
+
+                    // Calcular cumplimiento Sonda
+                    let sondaPoints = 0;
+                    const sondaMax = 7;
+                    if (sondaContinue === 'Si') sondaPoints++;
+                    if (sondaClosed === 'Integro') sondaPoints++;
+                    if (sondaBag === 'Correcta') sondaPoints++;
+                    if (sondaFix === 'Adecuada') sondaPoints++;
+                    if (sondaMeatus === 'Limpio') sondaPoints++;
+                    if (sondaUrine === 'Clara') sondaPoints++;
+                    if (sondaInfection === 'No') sondaPoints++;
+
+                    const sondaCompliance = Math.round((sondaPoints / sondaMax) * 100);
+
+                    const sondaAudit = {
+                        patient_doc: currentSonda.document,
+                        audit_type: 'seguimiento',
+                        auditor: auditor,
+                        bed: bed,
+                        sonda_days: sondaDays,
+                        bundle_data: {
+                            device_type: 'SONDA',
+                            continue: sondaContinue,
+                            closed_system: sondaClosed,
+                            bag_position: sondaBag,
+                            fixation: sondaFix,
+                            meatus: sondaMeatus,
+                            urine_aspect: sondaUrine,
+                            infection_signs: sondaInfection,
+                            observations: observations
+                        },
+                        compliance: sondaCompliance,
+                        needs_attention: sondaContinue === 'No' || sondaInfection === 'Confirmado' || sondaInfection === 'Sospecha' || sondaDays > 5
+                    };
+
+                    await supabase.from('sonda_audits').insert(sondaAudit);
+                    await supabase.from('sonda_patients').update({ bed: bed }).eq('document', currentSonda.document);
+                }
+
+                hideLoading();
+                showToast('Seguimiento guardado correctamente', 'success');
+                backToStart();
+
+            } catch (error) {
+                hideLoading();
+                showToast('Error: ' + error.message, 'error');
+            }
+        }
+
+        // ====================================
+        // GUARDAR RETIRO
+        // ====================================
+        async function saveRemoval() {
+            const removeCVC = document.getElementById('removeCVC').checked;
+            const removeSonda = document.getElementById('removeSonda').checked;
+
+            if (!removeCVC && !removeSonda) {
+                showToast('Seleccione al menos un dispositivo para retirar', 'error');
+                return;
+            }
+
+            showLoading('Registrando retiro...');
+
+            try {
+                const auditor = document.getElementById('removalAuditor').value.trim() || 'No registrado';
+                const observations = document.getElementById('removalObservations').value;
+
+                // Remove CVC
+                if (removeCVC && currentCVC) {
+                    const cvcRemovalDate = document.getElementById('cvcRemovalDate').value;
+                    const cvcReason = document.querySelector('input[name="cvcRemovalReason"]:checked')?.value || 'No especificado';
+                    const cvcCulture = document.querySelector('input[name="cvcCulture"]:checked')?.value || 'No';
+                    const cvcDays = daysBetween(currentCVC.insertion_date, cvcRemovalDate);
+
+                    await supabase.from('patients').update({
+                        catheter_removed: true,
+                        removal_date: cvcRemovalDate,
+                        removal_reason: cvcReason
+                    }).eq('document', currentCVC.document);
+
+                    await supabase.from('audits').insert({
+                        patient_doc: currentCVC.document,
+                        audit_type: 'retiro',
+                        auditor: auditor,
+                        bed: currentCVC.bed,
+                        catheter_days: cvcDays,
+                        bundle_data: {
+                            device_type: 'CVC',
+                            removal_reason: cvcReason,
+                            culture_taken: cvcCulture,
+                            observations: observations
+                        },
+                        compliance: null,
+                        needs_attention: cvcReason.includes('CLABSI')
+                    });
+                }
+
+                // Remove Sonda
+                if (removeSonda && currentSonda) {
+                    const sondaRemovalDate = document.getElementById('sondaRemovalDate').value;
+                    const sondaReason = document.querySelector('input[name="sondaRemovalReason"]:checked')?.value || 'No especificado';
+                    const sondaCulture = document.querySelector('input[name="sondaUroculture"]:checked')?.value || 'No';
+                    const sondaDays = daysBetween(currentSonda.insertion_date, sondaRemovalDate);
+
+                    await supabase.from('sonda_patients').update({
+                        sonda_removed: true,
+                        removal_date: sondaRemovalDate,
+                        removal_reason: sondaReason
+                    }).eq('document', currentSonda.document);
+
+                    await supabase.from('sonda_audits').insert({
+                        patient_doc: currentSonda.document,
+                        audit_type: 'retiro',
+                        auditor: auditor,
+                        bed: currentSonda.bed,
+                        sonda_days: sondaDays,
+                        bundle_data: {
+                            device_type: 'SONDA',
+                            removal_reason: sondaReason,
+                            uroculture_taken: sondaCulture,
+                            observations: observations
+                        },
+                        compliance: null,
+                        needs_attention: sondaReason.includes('CAUTI')
+                    });
+                }
+
+                hideLoading();
+                let msg = 'Retiro registrado: ';
+                if (removeCVC) msg += 'CVC ';
+                if (removeSonda) msg += 'Sonda Vesical';
+                showToast(msg, 'success');
+                backToStart();
+
+            } catch (error) {
+                hideLoading();
+                showToast('Error: ' + error.message, 'error');
+            }
+        }
+
+        // ====================================
+        // INICIALIZACION
+        // ====================================
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Sistema IAAS Integrado iniciado - CVC + Sonda Vesical');
+            loadStats();
+            checkConnection();
+
+            window.addEventListener('online', checkConnection);
+            window.addEventListener('offline', checkConnection);
+
+            document.getElementById('searchDoc').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') searchPatient();
+            });
+
+            // Set max date for date inputs
+            const today = new Date().toISOString().split('T')[0];
+            document.querySelectorAll('input[type="date"]').forEach(input => input.setAttribute('max', today));
+
+            // Radio option selection styling
+            document.querySelectorAll('.radio-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        const name = radio.getAttribute('name');
+                        document.querySelectorAll('input[name="' + name + '"]').forEach(r => {
+                            r.closest('.radio-option').classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
