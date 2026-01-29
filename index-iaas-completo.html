@@ -273,6 +273,180 @@
 
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
+        /* Dashboard Styles */
+        .dashboard-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
+        }
+        .dashboard-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+        }
+        .dashboard-btn .icon { font-size: 28px; }
+
+        .dashboard-container {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        .dashboard-title {
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .dashboard-subtitle {
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .beds-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .bed-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            position: relative;
+            transition: all 0.3s ease;
+            border: 3px solid transparent;
+        }
+        .bed-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .bed-card.empty { background: rgba(255,255,255,0.1); border: 2px dashed rgba(255,255,255,0.3); }
+        .bed-card.empty .bed-number { color: rgba(255,255,255,0.5); }
+        .bed-card.has-alert { border-color: #EF4444; animation: alertPulse 2s infinite; }
+        @keyframes alertPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 20px 5px rgba(239,68,68,0.4); } }
+
+        .bed-number {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--azul) 0%, var(--azul-oscuro) 100%);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            border: 3px solid white;
+        }
+        .bed-patient {
+            margin-top: 15px;
+            text-align: center;
+        }
+        .bed-patient-name {
+            font-weight: bold;
+            color: var(--azul-oscuro);
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .bed-devices {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .bed-device {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .bed-device.cvc { background: rgba(59, 130, 246, 0.15); color: var(--cvc-color); border: 1px solid var(--cvc-color); }
+        .bed-device.sonda { background: rgba(16, 185, 129, 0.15); color: var(--sonda-color); border: 1px solid var(--sonda-color); }
+        .bed-device.vm { background: rgba(245, 158, 11, 0.15); color: var(--vm-color); border: 1px solid var(--vm-color); }
+        .bed-device .days { font-size: 14px; font-weight: bold; }
+
+        .bed-alert {
+            background: #FEE2E2;
+            color: #DC2626;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-top: 8px;
+            text-align: center;
+            font-weight: 600;
+        }
+        .bed-empty-text {
+            color: rgba(255,255,255,0.4);
+            font-size: 12px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        .dashboard-legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: white;
+            font-size: 12px;
+        }
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+        .legend-dot.cvc { background: var(--cvc-color); }
+        .legend-dot.sonda { background: var(--sonda-color); }
+        .legend-dot.vm { background: var(--vm-color); }
+        .legend-dot.alert { background: #EF4444; }
+
+        .close-dashboard {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+        }
+        .close-dashboard:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
+        .dashboard-container { position: relative; }
+
         .badge { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; background: var(--amarillo); color: var(--azul-oscuro); border-radius: 50%; font-size: 11px; font-weight: bold; margin-right: 6px; }
 
         .section-separator { border-top: 3px dashed var(--gris); margin: 25px 0; position: relative; }
@@ -312,6 +486,30 @@
         </div>
 
         <div class="content">
+            <!-- Boton Dashboard -->
+            <button class="dashboard-btn" onclick="toggleDashboard()">
+                <span class="icon">📊</span>
+                DASHBOARD UCI - Vista de Camas
+            </button>
+
+            <!-- Dashboard Container -->
+            <div id="dashboardContainer" class="dashboard-container hidden">
+                <button class="close-dashboard" onclick="toggleDashboard()">✕</button>
+                <div class="dashboard-title">
+                    <span>🏥</span> UCI Pediatrica - Estado Actual
+                </div>
+                <div class="dashboard-subtitle">Ultima actualizacion: <span id="dashboardTime">--</span></div>
+                <div class="beds-grid" id="bedsGrid">
+                    <!-- Beds will be loaded here -->
+                </div>
+                <div class="dashboard-legend">
+                    <div class="legend-item"><div class="legend-dot cvc"></div> CVC</div>
+                    <div class="legend-item"><div class="legend-dot sonda"></div> Sonda</div>
+                    <div class="legend-item"><div class="legend-dot vm"></div> VM</div>
+                    <div class="legend-item"><div class="legend-dot alert"></div> Alerta</div>
+                </div>
+            </div>
+
             <!-- Estadisticas -->
             <div class="stats-grid">
                 <div class="stat-card cvc">
@@ -407,7 +605,7 @@
                                     <option value="1">1</option><option value="2">2</option><option value="3">3</option>
                                     <option value="4">4</option><option value="5">5</option><option value="6">6</option>
                                     <option value="7">7</option><option value="8">8</option><option value="9">9</option>
-                                    <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                    <option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option>
                                 </select>
                             </div>
                         </div>
@@ -601,7 +799,7 @@
                                     <option value="1">1</option><option value="2">2</option><option value="3">3</option>
                                     <option value="4">4</option><option value="5">5</option><option value="6">6</option>
                                     <option value="7">7</option><option value="8">8</option><option value="9">9</option>
-                                    <option value="10">10</option><option value="11">11</option><option value="12">12</option>
+                                    <option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -879,6 +1077,147 @@
         var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         let currentCVC = null, currentSonda = null, currentVM = null;
+        let dashboardOpen = false;
+
+        // DASHBOARD FUNCTIONS
+        async function toggleDashboard() {
+            dashboardOpen = !dashboardOpen;
+            const container = document.getElementById('dashboardContainer');
+            if (dashboardOpen) {
+                container.classList.remove('hidden');
+                await loadDashboard();
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        async function loadDashboard() {
+            const grid = document.getElementById('bedsGrid');
+            grid.innerHTML = '<div style="color:white;text-align:center;grid-column:1/-1;">Cargando...</div>';
+
+            try {
+                // Get all active patients with devices
+                const { data: cvcPatients } = await supabase.from('patients').select('*').eq('catheter_removed', false);
+                const { data: sondaPatients } = await supabase.from('sonda_patients').select('*').eq('sonda_removed', false);
+                const { data: vmPatients } = await supabase.from('vm_patients').select('*').eq('vm_removed', false);
+
+                // Get recent audits for alerts
+                const today = new Date().toISOString().split('T')[0];
+                const { data: cvcAudits } = await supabase.from('audits').select('*').eq('needs_attention', true).gte('created_at', today);
+                const { data: sondaAudits } = await supabase.from('sonda_audits').select('*').eq('needs_attention', true).gte('created_at', today);
+                const { data: vmAudits } = await supabase.from('vm_audits').select('*').eq('needs_attention', true).gte('created_at', today);
+
+                // Create bed map (1-13)
+                const beds = {};
+                for (let i = 1; i <= 13; i++) beds[i] = { patients: [], cvc: null, sonda: null, vm: null, alerts: [] };
+
+                // Map CVC patients to beds
+                (cvcPatients || []).forEach(p => {
+                    const bed = parseInt(p.bed);
+                    if (bed >= 1 && bed <= 13) {
+                        beds[bed].cvc = p;
+                        beds[bed].patients.push(p);
+                        const days = daysBetween(p.insertion_date, new Date());
+                        if (days > 7) beds[bed].alerts.push('CVC >' + days + 'd');
+                    }
+                });
+
+                // Map Sonda patients
+                (sondaPatients || []).forEach(p => {
+                    const bed = parseInt(p.bed);
+                    if (bed >= 1 && bed <= 13) {
+                        beds[bed].sonda = p;
+                        if (!beds[bed].patients.find(x => x.document === p.document)) beds[bed].patients.push(p);
+                        const days = daysBetween(p.insertion_date, new Date());
+                        if (days > 5) beds[bed].alerts.push('Sonda >' + days + 'd');
+                    }
+                });
+
+                // Map VM patients
+                (vmPatients || []).forEach(p => {
+                    const bed = parseInt(p.bed);
+                    if (bed >= 1 && bed <= 13) {
+                        beds[bed].vm = p;
+                        if (!beds[bed].patients.find(x => x.document === p.document)) beds[bed].patients.push(p);
+                        const days = daysBetween(p.insertion_date, new Date());
+                        if (days > 5) beds[bed].alerts.push('VM >' + days + 'd');
+                    }
+                });
+
+                // Check audits for alerts
+                (cvcAudits || []).forEach(a => {
+                    const p = (cvcPatients || []).find(x => x.document === a.patient_doc);
+                    if (p && p.bed) {
+                        const bed = parseInt(p.bed);
+                        if (!beds[bed].alerts.includes('Revisar CVC')) beds[bed].alerts.push('Revisar CVC');
+                    }
+                });
+                (sondaAudits || []).forEach(a => {
+                    const p = (sondaPatients || []).find(x => x.document === a.patient_doc);
+                    if (p && p.bed) {
+                        const bed = parseInt(p.bed);
+                        if (!beds[bed].alerts.includes('Revisar Sonda')) beds[bed].alerts.push('Revisar Sonda');
+                    }
+                });
+                (vmAudits || []).forEach(a => {
+                    const p = (vmPatients || []).find(x => x.document === a.patient_doc);
+                    if (p && p.bed) {
+                        const bed = parseInt(p.bed);
+                        if (!beds[bed].alerts.includes('Revisar VM')) beds[bed].alerts.push('Revisar VM');
+                    }
+                });
+
+                // Render beds
+                let html = '';
+                for (let i = 1; i <= 13; i++) {
+                    const bed = beds[i];
+                    const hasDevices = bed.cvc || bed.sonda || bed.vm;
+                    const hasAlert = bed.alerts.length > 0;
+                    const patientName = bed.patients[0]?.name || '';
+
+                    html += '<div class="bed-card ' + (!hasDevices ? 'empty' : '') + (hasAlert ? ' has-alert' : '') + '">';
+                    html += '<div class="bed-number">' + i + '</div>';
+
+                    if (hasDevices) {
+                        html += '<div class="bed-patient">';
+                        html += '<div class="bed-patient-name">' + sanitize(patientName.split(' ').slice(0,2).join(' ')) + '</div>';
+                        html += '<div class="bed-devices">';
+
+                        if (bed.cvc) {
+                            const days = daysBetween(bed.cvc.insertion_date, new Date());
+                            html += '<div class="bed-device cvc"><span class="days">' + days + '</span>CVC</div>';
+                        }
+                        if (bed.sonda) {
+                            const days = daysBetween(bed.sonda.insertion_date, new Date());
+                            html += '<div class="bed-device sonda"><span class="days">' + days + '</span>SV</div>';
+                        }
+                        if (bed.vm) {
+                            const days = daysBetween(bed.vm.insertion_date, new Date());
+                            html += '<div class="bed-device vm"><span class="days">' + days + '</span>VM</div>';
+                        }
+
+                        html += '</div>';
+
+                        if (hasAlert) {
+                            html += '<div class="bed-alert">⚠️ ' + bed.alerts[0] + '</div>';
+                        }
+
+                        html += '</div>';
+                    } else {
+                        html += '<div class="bed-empty-text">Libre</div>';
+                    }
+
+                    html += '</div>';
+                }
+
+                grid.innerHTML = html;
+                document.getElementById('dashboardTime').textContent = new Date().toLocaleTimeString('es-CO');
+
+            } catch (e) {
+                console.error(e);
+                grid.innerHTML = '<div style="color:#EF4444;text-align:center;grid-column:1/-1;">Error cargando dashboard</div>';
+            }
+        }
 
         function sanitize(s) { return s ? String(s).replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c])) : ''; }
         function daysBetween(d1, d2) { return Math.ceil((new Date(d2) - new Date(d1)) / 86400000); }
