@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema CLABSI UCI Pediátrica 2025 Clínica Infantil Colsubsidio</title>
+    <title>Sistema CLABSI - UCI Pediatrica - Clinica Infantil Colsubsidio</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4"></script>
     <style>
         :root {
-            --primary: #1976d2;
-            --success: #4caf50;
-            --warning: #ff9800;
-            --danger: #f44336;
-            --info: #2196f3;
+            --amarillo: #FDB913;
+            --azul: #003DA5;
+            --azul-oscuro: #001F5C;
+            --blanco: #ffffff;
+            --gris-claro: #f5f7fa;
+            --gris: #e0e0e0;
+            --error: #dc3545;
+            --success: #28a745;
         }
 
         * {
@@ -21,37 +24,59 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
             min-height: 100vh;
-            padding: 15px;
+            padding: 20px;
         }
 
         .container {
             max-width: 900px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            background: var(--blanco);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 31, 92, 0.15);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, var(--primary) 0%, #1565c0 100%);
-            color: white;
-            padding: 25px;
-            text-align: center;
+            background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul) 100%);
+            color: var(--blanco);
+            padding: 25px 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
 
-        .header h1 {
-            font-size: 24px;
+        .header-logo {
+            background: var(--blanco);
+            padding: 10px 15px;
+            border-radius: 8px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo img {
+            height: 50px;
+            width: auto;
+        }
+
+        .header-text h1 {
+            font-size: 22px;
             margin-bottom: 5px;
+        }
+
+        .header-text p {
+            font-size: 14px;
+            opacity: 0.9;
         }
 
         .content {
             padding: 25px;
         }
 
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -60,30 +85,42 @@
         }
 
         .stat-card {
-            background: #f5f5f5;
+            background: var(--gris-claro);
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 12px;
             text-align: center;
-            transition: transform 0.3s;
+            border: 2px solid var(--gris);
+            transition: all 0.3s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-3px);
+            border-color: var(--amarillo);
         }
 
         .stat-number {
             font-size: 36px;
             font-weight: bold;
-            color: var(--primary);
+            color: var(--azul);
         }
 
         .stat-label {
             color: #666;
             margin-top: 5px;
+            font-size: 14px;
         }
 
+        /* Choice Buttons */
         .choice-section {
             margin: 30px 0;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--azul-oscuro);
+            margin-bottom: 20px;
+            text-align: center;
         }
 
         .choice-buttons {
@@ -93,80 +130,97 @@
         }
 
         .choice-btn {
-            padding: 40px 20px;
-            border: 3px solid var(--primary);
-            background: white;
-            color: var(--primary);
-            border-radius: 15px;
-            font-size: 20px;
+            padding: 30px 20px;
+            border: 2px solid var(--gris);
+            background: var(--blanco);
+            color: var(--azul-oscuro);
+            border-radius: 12px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             text-align: center;
         }
 
         .choice-btn:hover {
-            background: var(--primary);
-            color: white;
-            transform: scale(1.05);
+            border-color: var(--amarillo);
+            background: rgba(253, 185, 19, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(253, 185, 19, 0.3);
         }
 
         .choice-btn.retiro {
-            border-color: var(--danger);
-            color: var(--danger);
+            border-color: var(--error);
         }
 
         .choice-btn.retiro:hover {
-            background: var(--danger);
-            color: white;
+            background: rgba(220, 53, 69, 0.1);
+            box-shadow: 0 5px 20px rgba(220, 53, 69, 0.3);
         }
 
-        .emoji-icon {
-            font-size: 48px;
+        .choice-icon {
+            font-size: 40px;
             display: block;
             margin-bottom: 10px;
         }
 
+        /* Form Styles */
         .form-section {
-            margin-top: 30px;
+            margin-top: 20px;
+        }
+
+        .bundle-section {
+            border: 2px solid var(--gris);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .bundle-header {
+            background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul) 100%);
+            color: var(--blanco);
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border-left: 4px solid var(--amarillo);
+        }
+
+        .bundle-content {
+            padding: 20px;
         }
 
         .form-group {
             margin-bottom: 20px;
         }
 
-        label {
+        .form-group label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
-            color: #333;
+            color: var(--azul-oscuro);
         }
 
         .required {
-            color: var(--danger);
+            color: var(--error);
         }
 
         input, select, textarea {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
+            padding: 12px 15px;
+            border: 2px solid var(--gris);
             border-radius: 8px;
             font-size: 16px;
-            transition: border-color 0.3s;
+            font-family: inherit;
+            transition: all 0.3s ease;
         }
 
         input:focus, select:focus, textarea:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: var(--azul);
+            box-shadow: 0 0 0 3px rgba(0, 61, 165, 0.1);
         }
 
-        input[type="date"] {
-            font-size: 16px;
-            padding: 10px;
-            border: 2px solid #2196f3;
-            border-radius: 5px;
-        }
-
+        /* Radio Options */
         .radio-group {
             display: flex;
             flex-direction: column;
@@ -176,253 +230,431 @@
         .radio-option {
             display: flex;
             align-items: center;
-            padding: 12px;
-            background: #f8f9fa;
+            padding: 12px 15px;
+            border: 2px solid var(--gris);
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
 
         .radio-option:hover {
-            background: #e3f2fd;
+            border-color: var(--amarillo);
+            background: rgba(253, 185, 19, 0.1);
+        }
+
+        .radio-option.selected {
+            border-color: var(--amarillo);
+            background: rgba(253, 185, 19, 0.15);
         }
 
         .radio-option input {
             width: 20px;
             height: 20px;
             margin-right: 12px;
+            accent-color: var(--azul);
         }
 
         .radio-option.success {
-            background: #e8f5e9;
             border-left: 4px solid var(--success);
         }
 
         .radio-option.warning {
-            background: #fff3e0;
-            border-left: 4px solid var(--warning);
+            border-left: 4px solid var(--amarillo);
         }
 
         .radio-option.danger {
-            background: #ffebee;
-            border-left: 4px solid var(--danger);
+            border-left: 4px solid var(--error);
         }
 
+        /* Buttons */
         .btn {
-            padding: 14px 28px;
+            padding: 15px 40px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            display: inline-block;
-            margin-right: 10px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn-primary {
-            background: var(--success);
-            color: white;
+            background: linear-gradient(135deg, var(--azul) 0%, var(--azul-oscuro) 100%);
+            color: var(--blanco);
         }
 
         .btn-primary:hover {
-            background: #45a049;
             transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 61, 165, 0.4);
         }
 
         .btn-secondary {
-            background: #757575;
-            color: white;
+            background: var(--amarillo);
+            color: var(--azul-oscuro);
         }
 
         .btn-secondary:hover {
-            background: #616161;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(253, 185, 19, 0.4);
         }
 
         .btn-danger {
-            background: var(--danger);
-            color: white;
+            background: linear-gradient(135deg, var(--error) 0%, #bd2130 100%);
+            color: var(--blanco);
         }
 
         .btn-danger:hover {
-            background: #d32f2f;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(220, 53, 69, 0.4);
         }
 
-        .btn-dashboard {
-            background: var(--info);
-            color: white;
-            margin-bottom: 20px;
+        .btn-back {
+            background: var(--gris);
+            color: var(--azul-oscuro);
         }
 
-        .btn-dashboard:hover {
-            background: #1976d2;
+        .btn-back:hover {
+            background: #ccc;
         }
 
+        /* Alerts */
         .alert {
-            padding: 15px;
-            border-radius: 8px;
+            padding: 15px 20px;
+            border-radius: 10px;
             margin-bottom: 20px;
             font-weight: 500;
         }
 
         .alert-danger {
-            background: linear-gradient(135deg, #ffebee 0%, #ffcdd2 100%);
-            border: 2px solid #f44336;
-            animation: pulse-red 2s infinite;
+            background: rgba(220, 53, 69, 0.15);
+            border: 2px solid var(--error);
+            color: #721c24;
         }
 
         .alert-warning {
-            background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
-            border: 2px solid #ff9800;
+            background: rgba(253, 185, 19, 0.2);
+            border: 2px solid var(--amarillo);
+            color: #856404;
         }
 
         .alert-success {
-            background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-            border: 2px solid #4caf50;
+            background: rgba(40, 167, 69, 0.15);
+            border: 2px solid var(--success);
+            color: #155724;
         }
 
         .alert-info {
-            background: linear-gradient(135deg, #e1f5fe 0%, #b3e5fc 100%);
-            border: 2px solid #2196f3;
+            background: rgba(0, 61, 165, 0.1);
+            border: 2px solid var(--azul);
+            color: var(--azul-oscuro);
         }
 
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7); }
-            50% { box-shadow: 0 0 0 10px rgba(244, 67, 54, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+        /* Patient Info Card */
+        .patient-info-card {
+            background: linear-gradient(135deg, rgba(0, 61, 165, 0.1) 0%, rgba(253, 185, 19, 0.1) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 2px solid var(--azul);
         }
 
+        .patient-info-card h3 {
+            color: var(--azul-oscuro);
+            margin-bottom: 10px;
+        }
+
+        /* Catheter Days Display */
+        .catheter-days-display {
+            font-size: 42px;
+            font-weight: bold;
+            text-align: center;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 12px;
+        }
+
+        .days-normal {
+            background: rgba(40, 167, 69, 0.15);
+            color: var(--success);
+            border: 2px solid var(--success);
+        }
+
+        .days-warning {
+            background: rgba(253, 185, 19, 0.2);
+            color: #856404;
+            border: 2px solid var(--amarillo);
+        }
+
+        .days-danger {
+            background: rgba(220, 53, 69, 0.15);
+            color: var(--error);
+            border: 2px solid var(--error);
+        }
+
+        /* Hidden */
         .hidden {
             display: none !important;
         }
 
-        .patient-info-card {
-            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 31, 92, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
         }
 
-        .catheter-days-display {
-            font-size: 48px;
-            font-weight: bold;
-            text-align: center;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 10px;
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--amarillo);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
-        .days-normal {
-            background: #e8f5e9;
+        .loading-text {
+            color: var(--blanco);
+            margin-top: 15px;
+            font-size: 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+        }
+
+        .toast {
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: var(--blanco);
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 300px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .toast-success {
+            background: linear-gradient(135deg, var(--success) 0%, #1e7e34 100%);
+        }
+
+        .toast-error {
+            background: linear-gradient(135deg, var(--error) 0%, #bd2130 100%);
+        }
+
+        .toast-warning {
+            background: linear-gradient(135deg, var(--amarillo) 0%, #e0a800 100%);
+            color: var(--azul-oscuro);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Connection Indicator */
+        .connection-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .connection-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .connection-online {
+            background: rgba(40, 167, 69, 0.2);
             color: var(--success);
         }
 
-        .days-warning {
-            background: #fff3e0;
-            color: var(--warning);
+        .connection-online .connection-dot {
+            background: var(--success);
         }
 
-        .days-danger {
-            background: #ffebee;
-            color: var(--danger);
+        .connection-offline {
+            background: rgba(220, 53, 69, 0.2);
+            color: var(--error);
         }
 
-        .section-title {
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--primary);
-            margin: 25px 0 15px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e0e0e0;
+        .connection-offline .connection-dot {
+            background: var(--error);
         }
 
-        .bundle-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Highlighted Form Group */
+        .form-highlight {
+            background: rgba(253, 185, 19, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid var(--amarillo);
             margin-bottom: 20px;
         }
 
-        .bundle-header {
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--info);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e0e0e0;
+        .form-highlight-danger {
+            background: rgba(220, 53, 69, 0.1);
+            border-left-color: var(--error);
         }
 
-        #dressingDaysInfo {
-            transition: all 0.3s ease;
-            margin-top: 10px;
+        .form-highlight-info {
+            background: rgba(0, 61, 165, 0.1);
+            border-left-color: var(--azul);
         }
 
-        #curationDone {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-            vertical-align: middle;
-            margin-right: 10px;
+        /* Small text helper */
+        .form-helper {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
         }
 
-        #curationFields {
-            animation: slideDown 0.3s ease;
+        /* Button Group */
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
         }
 
-        @keyframes slideDown {
-            from { 
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Alert with pulse animation */
+        .alert-pulse {
+            animation: alertPulse 2s infinite;
         }
 
-        .alert ul {
-            margin: 10px 0;
-            padding-left: 25px;
+        @keyframes alertPulse {
+            0% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(220, 53, 69, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
         }
 
-        .alert ul li {
-            margin: 5px 0;
-            line-height: 1.5;
-        }
-
+        /* Responsive */
         @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+
             .choice-buttons {
                 grid-template-columns: 1fr;
             }
-            
+
             .stats-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
             }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Curation Fields Animation */
+        .curation-fields {
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: var(--amarillo);
+            color: var(--azul-oscuro);
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            margin-right: 8px;
         }
     </style>
 </head>
 <body>
+    <!-- Connection Indicator -->
+    <div class="connection-indicator connection-online" id="connectionIndicator">
+        <span class="connection-dot"></span>
+        <span id="connectionText">Conectado</span>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay hidden" id="loadingOverlay">
+        <div style="text-align: center;">
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="loadingText">Cargando...</div>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
-            <h1>🏥 Sistema de Auditoría CLABSI - Clínica Infantil Colsubsidio</h1>
-            <p>UCI Pediátrica - Bundle Completo de Prevención 2025</p>
+            <div class="header-logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Logo_Colsubsidio.svg/1200px-Logo_Colsubsidio.svg.png" alt="Colsubsidio" onerror="this.style.display='none'">
+            </div>
+            <div class="header-text">
+                <h1>Sistema de Auditoria CLABSI</h1>
+                <p>UCI Pediatrica - Clinica Infantil Colsubsidio - Bundle de Prevencion 2025</p>
+            </div>
         </div>
 
         <div class="content">
-            <!-- Botón Dashboard -->
-            <button class="btn btn-dashboard" onclick="window.location.href='dashboard.html'">
-                📊 Ver Dashboard por Camas
-            </button>
-
-            <!-- Estadísticas -->
+            <!-- Estadisticas -->
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-number" id="statToday">0</div>
-                    <div class="stat-label">Auditorías Hoy</div>
+                    <div class="stat-label">Auditorias Hoy</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="statPatients">0</div>
-                    <div class="stat-label">Pacientes</div>
+                    <div class="stat-label">Pacientes Activos</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="statCompliance">0%</div>
@@ -434,655 +666,739 @@
                 </div>
             </div>
 
-            <!-- Selección de tipo - SIN BOTONES DE GUARDAR -->
+            <!-- Seleccion de tipo -->
             <div id="selectType" class="choice-section">
-                <h2 style="text-align: center; margin-bottom: 20px;">Seleccione el tipo de auditoría</h2>
+                <h2 class="section-title">Seleccione el tipo de auditoria</h2>
                 <div class="choice-buttons">
                     <button class="choice-btn" onclick="startFirstTime()">
-                        <span class="emoji-icon">🆕</span>
+                        <span class="choice-icon">+</span>
                         PRIMERA VEZ
                     </button>
                     <button class="choice-btn" onclick="startFollowUp()">
-                        <span class="emoji-icon">📋</span>
+                        <span class="choice-icon">&#10003;</span>
                         SEGUIMIENTO
                     </button>
                     <button class="choice-btn retiro" onclick="startRemoval()">
-                        <span class="emoji-icon">🔴</span>
+                        <span class="choice-icon">&#10005;</span>
                         RETIRO
                     </button>
                 </div>
             </div>
 
-            <!-- Búsqueda de paciente - SIN BOTÓN GUARDAR -->
+            <!-- Busqueda de paciente -->
             <div id="searchSection" class="hidden">
-                <h2 class="section-title">Buscar Paciente</h2>
-                <div class="form-group">
-                    <label>Documento del paciente:</label>
-                    <input type="text" id="searchDoc" placeholder="Ingrese número de documento...">
+                <div class="bundle-section">
+                    <div class="bundle-header">Buscar Paciente</div>
+                    <div class="bundle-content">
+                        <div class="form-group">
+                            <label>Documento del paciente <span class="required">*</span></label>
+                            <input type="text" id="searchDoc" placeholder="Ingrese numero de documento...">
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" onclick="searchPatient()">Buscar</button>
+                            <button class="btn btn-back" onclick="backToStart()">Volver</button>
+                        </div>
+                    </div>
                 </div>
-                <button class="btn btn-primary" onclick="searchPatient()">🔍 Buscar</button>
-                <button class="btn btn-secondary" onclick="backToStart()">← Volver</button>
-                
                 <div id="searchResult" class="hidden" style="margin-top: 20px;"></div>
             </div>
 
-            <!-- Formulario Primera Vez - SOLO BOTÓN GUARDAR PRIMERA VEZ -->
+            <!-- Formulario Primera Vez -->
             <div id="firstTimeForm" class="hidden form-section">
-                <h2 class="section-title">🆕 Registro de Primera Vez</h2>
-                
-                <!-- Datos básicos -->
                 <div class="bundle-section">
-                    <h3 class="bundle-header">📋 Datos Básicos del Paciente</h3>
-                    
-                    <div class="form-group">
-                        <label>Documento del paciente <span class="required">*</span></label>
-                        <input type="text" id="docFirst" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Nombre del paciente <span class="required">*</span></label>
-                        <input type="text" id="nameFirst" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Fecha de inserción del catéter <span class="required">*</span></label>
-                        <input type="date" id="insertionDate" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Tipo de acceso <span class="required">*</span></label>
-                        <select id="accessType" required>
-                            <option value="">-- Seleccione --</option>
-                            <option value="YUGULAR">Yugular</option>
-                            <option value="SUBCLAVIO">Subclavio</option>
-                            <option value="FEMORAL">Femoral</option>
-                            <option value="AXILAR">Axilar</option>
-                            <option value="PICC CEFALICO">PICC Cefálico</option>
-                            <option value="PICC BASILICO">PICC Basílico</option>
-                            <option value="EPICUTANEO">Epicutáneo</option>
-                            <option value="UMBILICAL">Umbilical</option>
-                            <option value="IMPLANTABLE">Implantable</option>
-                            <option value="MAHURKA">Catéter Mahurka</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Servicio <span class="required">*</span></label>
-                        <select id="serviceFirst" required>
-                            <option value="UCIP">UCIP</option>
-                            <option value="Intermedios">Intermedios</option>
-                            <option value="Hospitalización">Hospitalización</option>
-                            <option value="UAME">UAME</option>
-                            <option value="Urgencias">Urgencias</option>
-                            <option value="Salas de Cirugía">Salas de Cirugía</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Cama <span class="required">*</span></label>
-                        <select id="bedFirst" required>
-                            <option value="">-- Seleccione cama --</option>
-                            <option value="1">Cama 1</option>
-                            <option value="2">Cama 2</option>
-                            <option value="3">Cama 3</option>
-                            <option value="4">Cama 4</option>
-                            <option value="5">Cama 5</option>
-                            <option value="6">Cama 6</option>
-                            <option value="7">Cama 7</option>
-                            <option value="8">Cama 8</option>
-                            <option value="9">Cama 9</option>
-                            <option value="10">Cama 10</option>
-                            <option value="11">Cama 11</option>
-                            <option value="12">Cama 12</option>
-                            <option value="13">Cama 13</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Nombre del auditor <span class="required">*</span></label>
-                        <input type="text" id="auditorFirst" required>
-                    </div>
+                    <div class="bundle-header">PRIMERA VEZ - Registro de Insercion</div>
+                    <div class="bundle-content">
+                        <div class="form-group">
+                            <label>Documento del paciente <span class="required">*</span></label>
+                            <input type="text" id="docFirst" required>
+                        </div>
 
-                    <div class="form-group">
-                        <label>¿La inserción es verificable? <span class="required">*</span></label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="insertionVerifiable" value="Si" required onchange="toggleBundleInsercion()">
-                                <span>✅ Sí - Puedo verificar el proceso de inserción</span>
-                            </label>
-                            <label class="radio-option warning">
-                                <input type="radio" name="insertionVerifiable" value="No" onchange="toggleBundleInsercion()">
-                                <span>⚠️ No - Inserción en otro servicio (Ej: Cirugía)</span>
-                            </label>
+                        <div class="form-group">
+                            <label>Nombre del paciente <span class="required">*</span></label>
+                            <input type="text" id="nameFirst" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Fecha de insercion del cateter <span class="required">*</span></label>
+                            <input type="date" id="insertionDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Tipo de acceso <span class="required">*</span></label>
+                            <select id="accessType" required>
+                                <option value="">-- Seleccione --</option>
+                                <option value="YUGULAR">Yugular</option>
+                                <option value="SUBCLAVIO">Subclavio</option>
+                                <option value="FEMORAL">Femoral</option>
+                                <option value="AXILAR">Axilar</option>
+                                <option value="PICC CEFALICO">PICC Cefalico</option>
+                                <option value="PICC BASILICO">PICC Basilico</option>
+                                <option value="EPICUTANEO">Epicutaneo</option>
+                                <option value="UMBILICAL">Umbilical</option>
+                                <option value="IMPLANTABLE">Implantable</option>
+                                <option value="MAHURKA">Cateter Mahurka</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Servicio <span class="required">*</span></label>
+                            <select id="serviceFirst" required>
+                                <option value="UCIP">UCIP</option>
+                                <option value="Intermedios">Intermedios</option>
+                                <option value="Hospitalizacion">Hospitalizacion</option>
+                                <option value="UAME">UAME</option>
+                                <option value="Urgencias">Urgencias</option>
+                                <option value="Salas de Cirugia">Salas de Cirugia</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Cama <span class="required">*</span></label>
+                            <select id="bedFirst" required>
+                                <option value="">-- Seleccione cama --</option>
+                                <option value="1">Cama 1</option>
+                                <option value="2">Cama 2</option>
+                                <option value="3">Cama 3</option>
+                                <option value="4">Cama 4</option>
+                                <option value="5">Cama 5</option>
+                                <option value="6">Cama 6</option>
+                                <option value="7">Cama 7</option>
+                                <option value="8">Cama 8</option>
+                                <option value="9">Cama 9</option>
+                                <option value="10">Cama 10</option>
+                                <option value="11">Cama 11</option>
+                                <option value="12">Cama 12</option>
+                                <option value="13">Cama 13</option>
+                                <option value="14">Cama 14</option>
+                                <option value="15">Cama 15</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nombre del auditor <span class="required">*</span></label>
+                            <input type="text" id="auditorFirst" required>
+                        </div>
+
+                        <div class="form-highlight">
+                            <label>La insercion es verificable? <span class="required">*</span></label>
+                            <p class="form-helper">Seleccione "No" si la insercion fue en otro servicio y no puede verificar el proceso</p>
+                            <div class="radio-group" style="margin-top: 10px;">
+                                <label class="radio-option success">
+                                    <input type="radio" name="insertionVerifiable" value="Si" required onchange="toggleBundleInsercion()">
+                                    <span>Si - Puedo verificar el proceso de insercion</span>
+                                </label>
+                                <label class="radio-option warning">
+                                    <input type="radio" name="insertionVerifiable" value="No" onchange="toggleBundleInsercion()">
+                                    <span>No - Insercion en otro servicio (Ej: Cirugia)</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-
-                <!-- Contenedor de Bundles - Se oculta si inserción no es verificable -->
+                <!-- Bundle de Insercion - Se oculta si no es verificable -->
                 <div id="bundleInsercion">
-                <!-- Bundle ANTES de Inserción -->
-                <div class="bundle-section">
-                    <h3 class="bundle-header">✅ Bundle ANTES de la Inserción</h3>
-                    
-                    <div class="form-group">
-                        <label>¿Se verificó indicación y contraindicaciones?</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="verify" value="Si" required>
-                                <span>✅ Sí</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="verify" value="No">
-                                <span>❌ No</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>¿Consentimiento informado firmado?</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="consent" value="Si" required>
-                                <span>✅ Sí</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="consent" value="No">
-                                <span>❌ No</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>¿Lavado de manos según protocolo?</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="handwash" value="Si" required>
-                                <span>✅ Sí</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="handwash" value="No">
-                                <span>❌ No</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>¿Uso de EPP completo según protocolo?</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="epp" value="Si" required>
-                                <span>✅ Sí</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="epp" value="No">
-                                <span>❌ No</span>
-                            </label>
+                    <div class="bundle-section">
+                        <div class="bundle-header"><span class="badge">1</span> Bundle ANTES de la Insercion</div>
+                        <div class="bundle-content">
+                            <div class="form-group">
+                                <label>Se verifico indicacion y contraindicaciones?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="verify" value="Si" required>
+                                        <span>Si</span>
+                                    </label>
+                                    <label class="radio-option danger">
+                                        <input type="radio" name="verify" value="No">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Consentimiento informado firmado?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="consent" value="Si" required>
+                                        <span>Si</span>
+                                    </label>
+                                    <label class="radio-option danger">
+                                        <input type="radio" name="consent" value="No">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Lavado de manos segun protocolo?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="handwash" value="Si" required>
+                                        <span>Si</span>
+                                    </label>
+                                    <label class="radio-option danger">
+                                        <input type="radio" name="handwash" value="No">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Uso de EPP completo segun protocolo?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="epp" value="Si" required>
+                                        <span>Si</span>
+                                    </label>
+                                    <label class="radio-option danger">
+                                        <input type="radio" name="epp" value="No">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Se garantizo colaboracion del equipo (profesional o auxiliar)?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="teamCollaboration" value="Si" required>
+                                        <span>Si</span>
+                                    </label>
+                                    <label class="radio-option danger">
+                                        <input type="radio" name="teamCollaboration" value="No">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>¿Se garantizó colaboración del equipo (profesional o auxiliar)?</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="teamCollaboration" value="Si" required>
-                                <span>✅ Sí</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="teamCollaboration" value="No">
-                                <span>❌ No</span>
-                            </label>
+                    <div class="bundle-section">
+                        <div class="bundle-header"><span class="badge">2</span> Bundle DESPUES de la Insercion</div>
+                        <div class="bundle-content">
+                            <div class="form-group">
+                                <label>Se presentaron complicaciones durante el procedimiento?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="complications" value="No" required>
+                                        <span>No</span>
+                                    </label>
+                                    <label class="radio-option danger">
+                                        <input type="radio" name="complications" value="Si">
+                                        <span>Si</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Se cumplieron normas de bioseguridad y tecnica aseptica?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="biosecurity" value="Si" required>
+                                        <span>Si</span>
+                                    </label>
+                                    <label class="radio-option danger">
+                                        <input type="radio" name="biosecurity" value="No">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Se preparo el cateter adecuadamente (purga, verificacion permeabilidad)?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="catheterPrep" value="Si" required>
+                                        <span>Si</span>
+                                    </label>
+                                    <label class="radio-option danger">
+                                        <input type="radio" name="catheterPrep" value="No">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Se uso Clorhexidina 2% + alcohol 70% para preparacion de piel?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="skinPrep" value="Si" required>
+                                        <span>Si</span>
+                                    </label>
+                                    <label class="radio-option danger">
+                                        <input type="radio" name="skinPrep" value="No">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Se cubrio al paciente con sabana esteril de cabeza a pies?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="sterileDrape" value="Si" required>
+                                        <span>Si</span>
+                                    </label>
+                                    <label class="radio-option danger">
+                                        <input type="radio" name="sterileDrape" value="No">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Se dejo fijacion con datos estandarizados?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="standardFixation" value="Si" required>
+                                        <span>Si</span>
+                                    </label>
+                                    <label class="radio-option danger">
+                                        <input type="radio" name="standardFixation" value="No">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Se tomo Rx de torax/abdomen antes de iniciar tratamiento? (Neonatos)</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="xrayTaken" value="Si" required>
+                                        <span>Si</span>
+                                    </label>
+                                    <label class="radio-option danger">
+                                        <input type="radio" name="xrayTaken" value="No">
+                                        <span>No</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="xrayTaken" value="NA">
+                                        <span>No aplica</span>
+                                    </label>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Bundle DESPUÉS de Inserción -->
-                <div class="bundle-section">
-                    <h3 class="bundle-header">📝 Bundle DESPUÉS de la Inserción</h3>
-                    
-                    <div class="form-group">
-                        <label>¿Se presentaron complicaciones durante el procedimiento?</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="complications" value="No" required>
-                                <span>✅ No</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="complications" value="Si">
-                                <span>⚠️ Sí</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>¿Se cumplieron normas de bioseguridad y técnica aséptica?</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="biosecurity" value="Si" required>
-                                <span>✅ Sí</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="biosecurity" value="No">
-                                <span>❌ No</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>¿Se preparó el catéter adecuadamente (purga, verificación permeabilidad)?</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="catheterPrep" value="Si" required>
-                                <span>✅ Sí</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="catheterPrep" value="No">
-                                <span>❌ No</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>¿Se usó Clorhexidina 2% + alcohol 70% para preparación de piel?</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="skinPrep" value="Si" required>
-                                <span>✅ Sí</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="skinPrep" value="No">
-                                <span>❌ No</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>¿Se cubrió al paciente con sábana estéril de cabeza a pies?</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="sterileDrape" value="Si" required>
-                                <span>✅ Sí</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="sterileDrape" value="No">
-                                <span>❌ No</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>¿Se dejó fijación con datos estandarizados?</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="standardFixation" value="Si" required>
-                                <span>✅ Sí</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="standardFixation" value="No">
-                                <span>❌ No</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>¿Se tomó Rx de tórax/abdomen antes de iniciar tratamiento? (Neonatos)</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="xrayTaken" value="Si" required>
-                                <span>✅ Sí</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="xrayTaken" value="No">
-                                <span>❌ No</span>
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="xrayTaken" value="NA">
-                                <span>No aplica</span>
-                            </label>
-                        </div>
-                    </div>
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="saveFirstTime()">Guardar Primera Vez</button>
+                    <button class="btn btn-back" onclick="backToStart()">Volver</button>
                 </div>
-                
-                </div><!-- Fin bundleInsercion -->
-                <!-- SOLO botón guardar primera vez -->
-                <button class="btn btn-primary" onclick="saveFirstTime()">💾 Guardar Primera Vez</button>
-                <button class="btn btn-secondary" onclick="backToStart()">← Volver</button>
             </div>
 
-            <!-- Formulario Retiro de Catéter - SOLO BOTÓN REGISTRAR RETIRO -->
+            <!-- Formulario Retiro de Cateter -->
             <div id="removalForm" class="hidden form-section">
-                <h2 class="section-title" style="color: var(--danger);">🔴 Registro de RETIRO de Catéter</h2>
-                
-                <div id="patientInfoCardRemoval" class="patient-info-card"></div>
-                <div id="catheterDaysFinal" class="catheter-days-display"></div>
-                
                 <div class="bundle-section">
-                    <h3 class="bundle-header" style="color: var(--danger);">📝 Información del Retiro</h3>
-                    
-                    <div class="form-group">
-                        <label>Fecha de retiro <span class="required">*</span></label>
-                        <input type="date" id="removalDate" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Motivo del retiro <span class="required">*</span></label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="removalReason" value="Fin de tratamiento" required>
-                                <span>✅ Fin de tratamiento - Ya no necesario</span>
-                            </label>
-                            <label class="radio-option warning">
-                                <input type="radio" name="removalReason" value="Sospecha de infección">
-                                <span>⚠️ Sospecha de infección</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="removalReason" value="Infección confirmada CLABSI">
-                                <span>🚨 Infección confirmada (CLABSI)</span>
-                            </label>
-                            <label class="radio-option warning">
-                                <input type="radio" name="removalReason" value="Mal funcionamiento">
-                                <span>⚠️ Mal funcionamiento del catéter</span>
-                            </label>
-                            <label class="radio-option warning">
-                                <input type="radio" name="removalReason" value="Complicación mecánica">
-                                <span>⚠️ Complicación mecánica</span>
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="removalReason" value="Otro">
-                                <span>📋 Otro motivo</span>
-                            </label>
-                        </div>
-                    </div>
+                    <div class="bundle-header" style="background: linear-gradient(135deg, var(--error) 0%, #bd2130 100%);">RETIRO DE CATETER</div>
+                    <div class="bundle-content">
+                        <div id="patientInfoCardRemoval" class="patient-info-card"></div>
+                        <div id="catheterDaysFinal" class="catheter-days-display"></div>
 
-                    <div class="form-group">
-                        <label>¿Se tomó cultivo de punta de catéter?</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="cultureTaken" value="Si" required>
-                                <span>✅ Sí</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="cultureTaken" value="No">
-                                <span>❌ No</span>
-                            </label>
+                        <div class="form-highlight">
+                            <label style="font-weight: bold;">Tiene informacion completa del retiro? <span class="required">*</span></label>
+                            <p class="form-helper">Si no presencio el retiro o no tiene acceso a la informacion, seleccione "No"</p>
+                            <div class="radio-group" style="margin-top: 10px;">
+                                <label class="radio-option success">
+                                    <input type="radio" name="removalInfoComplete" value="Si" required onchange="toggleRemovalMode()">
+                                    <span>Si - Tengo informacion completa</span>
+                                </label>
+                                <label class="radio-option warning">
+                                    <input type="radio" name="removalInfoComplete" value="No" onchange="toggleRemovalMode()">
+                                    <span>No - Solo se fecha y/o motivo (retiro no presenciado)</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label>¿Se documentó en historia clínica?</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="documented" value="Si" required>
-                                <span>✅ Sí</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="documented" value="No">
-                                <span>❌ No</span>
-                            </label>
+                        <div class="form-group">
+                            <label>Fecha de retiro <span class="required">*</span></label>
+                            <input type="date" id="removalDate" required>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Nombre del profesional que retiró <span class="required">*</span></label>
-                        <input type="text" id="removalAuditor" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Observaciones del retiro</label>
-                        <textarea id="removalObservations" rows="3" 
-                                 placeholder="Detalles adicionales, complicaciones durante el retiro, etc..."></textarea>
+
+                        <div class="form-group">
+                            <label>Motivo del retiro <span class="required">*</span></label>
+                            <div class="radio-group">
+                                <label class="radio-option success">
+                                    <input type="radio" name="removalReason" value="Fin de tratamiento" required>
+                                    <span>Fin de tratamiento - Ya no necesario</span>
+                                </label>
+                                <label class="radio-option warning">
+                                    <input type="radio" name="removalReason" value="Sospecha de infeccion">
+                                    <span>Sospecha de infeccion</span>
+                                </label>
+                                <label class="radio-option danger">
+                                    <input type="radio" name="removalReason" value="Infeccion confirmada CLABSI">
+                                    <span>Infeccion confirmada (CLABSI)</span>
+                                </label>
+                                <label class="radio-option warning">
+                                    <input type="radio" name="removalReason" value="Mal funcionamiento">
+                                    <span>Mal funcionamiento del cateter</span>
+                                </label>
+                                <label class="radio-option warning">
+                                    <input type="radio" name="removalReason" value="Complicacion mecanica">
+                                    <span>Complicacion mecanica</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="removalReason" value="Otro">
+                                    <span>Otro motivo</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="removalReason" value="Desconocido">
+                                    <span>Desconocido / No documentado</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="removalOptionalFields">
+                            <div class="form-group">
+                                <label>Se tomo cultivo de punta de cateter?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="cultureTaken" value="Si" required>
+                                        <span>Si</span>
+                                    </label>
+                                    <label class="radio-option danger">
+                                        <input type="radio" name="cultureTaken" value="No">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Se documento en historia clinica?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success">
+                                        <input type="radio" name="documented" value="Si" required>
+                                        <span>Si</span>
+                                    </label>
+                                    <label class="radio-option danger">
+                                        <input type="radio" name="documented" value="No">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Nombre del profesional que retiro <span class="required">*</span></label>
+                                <input type="text" id="removalAuditor" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Observaciones del retiro</label>
+                            <textarea id="removalObservations" rows="3"
+                                     placeholder="Detalles adicionales, complicaciones durante el retiro, etc..."></textarea>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- SOLO botón registrar retiro -->
-                <button class="btn btn-danger" onclick="saveRemoval()">💾 Registrar Retiro</button>
-                <button class="btn btn-secondary" onclick="backToStart()">← Volver</button>
+
+                <div class="btn-group">
+                    <button class="btn btn-danger" onclick="saveRemoval()">Registrar Retiro</button>
+                    <button class="btn btn-back" onclick="backToStart()">Volver</button>
+                </div>
             </div>
 
-            <!-- Formulario Seguimiento - SOLO BOTÓN GUARDAR SEGUIMIENTO -->
+            <!-- Formulario Seguimiento -->
             <div id="followUpForm" class="hidden form-section">
-                <h2 class="section-title">📋 Auditoría de Seguimiento</h2>
-                
-                <div id="patientInfoCard" class="patient-info-card"></div>
-                <div id="catheterDaysDisplay" class="catheter-days-display"></div>
-                
                 <div class="bundle-section">
-                    <h3 class="bundle-header">📍 Información de la Auditoría</h3>
-                    
-                    <div class="form-group">
-                        <label>Cama actual <span class="required">*</span></label>
-                        <select id="bedFollow" required>
-                            <option value="">-- Seleccione cama --</option>
-                            <option value="1">Cama 1</option>
-                            <option value="2">Cama 2</option>
-                            <option value="3">Cama 3</option>
-                            <option value="4">Cama 4</option>
-                            <option value="5">Cama 5</option>
-                            <option value="6">Cama 6</option>
-                            <option value="7">Cama 7</option>
-                            <option value="8">Cama 8</option>
-                            <option value="9">Cama 9</option>
-                            <option value="10">Cama 10</option>
-                            <option value="11">Cama 11</option>
-                            <option value="12">Cama 12</option>
-                            <option value="13">Cama 13</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Nombre del auditor <span class="required">*</span></label>
-                        <input type="text" id="auditorFollow" required>
+                    <div class="bundle-header">SEGUIMIENTO - Auditoria de Mantenimiento</div>
+                    <div class="bundle-content">
+                        <div id="patientInfoCard" class="patient-info-card"></div>
+                        <div id="catheterDaysDisplay" class="catheter-days-display"></div>
+
+                        <div class="form-group">
+                            <label>Cama actual <span class="required">*</span></label>
+                            <select id="bedFollow" required>
+                                <option value="">-- Seleccione cama --</option>
+                                <option value="1">Cama 1</option>
+                                <option value="2">Cama 2</option>
+                                <option value="3">Cama 3</option>
+                                <option value="4">Cama 4</option>
+                                <option value="5">Cama 5</option>
+                                <option value="6">Cama 6</option>
+                                <option value="7">Cama 7</option>
+                                <option value="8">Cama 8</option>
+                                <option value="9">Cama 9</option>
+                                <option value="10">Cama 10</option>
+                                <option value="11">Cama 11</option>
+                                <option value="12">Cama 12</option>
+                                <option value="13">Cama 13</option>
+                                <option value="14">Cama 14</option>
+                                <option value="15">Cama 15</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Nombre del auditor <span class="required">*</span></label>
+                            <input type="text" id="auditorFollow" required>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Bundle de Mantenimiento -->
                 <div class="bundle-section">
-                    <h3 class="bundle-header">🔒 Bundle de Prevención CLABSI - Mantenimiento</h3>
-
-                    <!-- 1. HIGIENE DE MANOS -->
-                    <div class="form-group">
-                        <label>1. HIGIENE DE MANOS</label>
-                        <small style="color: #666;">Se realizó antes y después del contacto con el paciente</small>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="hygiene" value="Siempre" required onchange="checkCurationRequired()">
-                                <span>✅ Siempre</span>
-                            </label>
-                            <label class="radio-option warning">
-                                <input type="radio" name="hygiene" value="A veces" onchange="checkCurationRequired()">
-                                <span>⚠️ A veces</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="hygiene" value="Nunca" onchange="checkCurationRequired()">
-                                <span>❌ Nunca</span>
-                            </label>
+                    <div class="bundle-header"><span class="badge">1</span> Bundle de Prevencion CLABSI - Mantenimiento</div>
+                    <div class="bundle-content">
+                        <div class="form-group">
+                            <label><span class="badge">1</span> HIGIENE DE MANOS</label>
+                            <p class="form-helper">Se realizo antes y despues del contacto con el paciente</p>
+                            <div class="radio-group">
+                                <label class="radio-option success">
+                                    <input type="radio" name="hygiene" value="Siempre" required onchange="checkCurationRequired()">
+                                    <span>Siempre</span>
+                                </label>
+                                <label class="radio-option warning">
+                                    <input type="radio" name="hygiene" value="A veces" onchange="checkCurationRequired()">
+                                    <span>A veces</span>
+                                </label>
+                                <label class="radio-option danger">
+                                    <input type="radio" name="hygiene" value="Nunca" onchange="checkCurationRequired()">
+                                    <span>Nunca</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- 2. SCRUB THE HUB -->
-                    <div class="form-group" style="background: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #ff9800;">
-                        <label style="color: #e65100; font-weight: bold;">2. DESINFECCIÓN DE PUERTOS (*SCRUB THE HUB*) <span class="required">*</span></label>
-                        <small style="color: #666;">Confirmar desinfección previa antes de cada acceso - Mínimo 15 segundos con alcohol 70%</small>
-                        <div class="radio-group" style="margin-top: 10px;">
-                            <label class="radio-option success">
-                                <input type="radio" name="hubDisinfection" value="Si-15seg" required onchange="checkCurationRequired()">
-                                <span>✅ Sí - 15 segundos completos</span>
-                            </label>
-                            <label class="radio-option warning">
-                                <input type="radio" name="hubDisinfection" value="Si-menos15" onchange="checkCurationRequired()">
-                                <span>⚠️ Sí - Menos de 15 segundos</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="hubDisinfection" value="No" onchange="checkCurationRequired()">
-                                <span>🚨 NO REALIZADO</span>
-                            </label>
+                        <div class="form-highlight">
+                            <label><span class="badge">2</span> DESINFECCION DE PUERTOS (SCRUB THE HUB) <span class="required">*</span></label>
+                            <p class="form-helper">Confirmar desinfeccion previa antes de cada acceso - Minimo 15 segundos con alcohol 70%</p>
+                            <div class="radio-group" style="margin-top: 10px;">
+                                <label class="radio-option success">
+                                    <input type="radio" name="hubDisinfection" value="Si-15seg" required onchange="checkCurationRequired()">
+                                    <span>Si - 15 segundos completos</span>
+                                </label>
+                                <label class="radio-option warning">
+                                    <input type="radio" name="hubDisinfection" value="Si-menos15" onchange="checkCurationRequired()">
+                                    <span>Si - Menos de 15 segundos</span>
+                                </label>
+                                <label class="radio-option danger">
+                                    <input type="radio" name="hubDisinfection" value="No" onchange="checkCurationRequired()">
+                                    <span>NO REALIZADO</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- 3. INDICACIÓN MÉDICA -->
-                    <div class="form-group">
-                        <label>3. INDICACIÓN MÉDICA DEL CATÉTER <span class="required">*</span></label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="continue" value="Si" required onchange="checkCurationRequired()">
-                                <span>✅ SÍ - Mantener</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="continue" value="No" onchange="checkCurationRequired()">
-                                <span>🚨 NO - Retirar en 24 horas</span>
-                            </label>
+                        <div class="form-group">
+                            <label><span class="badge">3</span> INDICACION MEDICA DEL CATETER <span class="required">*</span></label>
+                            <div class="radio-group">
+                                <label class="radio-option success">
+                                    <input type="radio" name="continue" value="Si" required onchange="checkCurationRequired()">
+                                    <span>SI - Mantener</span>
+                                </label>
+                                <label class="radio-option danger">
+                                    <input type="radio" name="continue" value="No" onchange="checkCurationRequired()">
+                                    <span>NO - Retirar en 24 horas</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- 4. ESTADO DEL APÓSITO -->
-                    <div class="form-group">
-                        <label>4. ESTADO DEL APÓSITO TRANSPARENTE</label>
-                        <small style="color: #666;">Evaluar: intacto, limpio, seco, bien adherido</small>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="transparentDressing" value="Optimo" required onchange="checkCurationRequired()">
-                                <span>✅ Óptimo - Íntegro y limpio</span>
-                            </label>
-                            <label class="radio-option warning">
-                                <input type="radio" name="transparentDressing" value="Parcialmente-despegado" onchange="checkCurationRequired()">
-                                <span>⚠️ Parcialmente despegado (>25%)</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="transparentDressing" value="Humedo-sucio" onchange="checkCurationRequired()">
-                                <span>❌ Húmedo/Sucio - CAMBIAR</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="transparentDressing" value="No-transparente" onchange="checkCurationRequired()">
-                                <span>❌ No es transparente - CAMBIAR</span>
-                            </label>
+                        <div class="form-group">
+                            <label><span class="badge">4</span> ESTADO DEL APOSITO TRANSPARENTE</label>
+                            <p class="form-helper">Evaluar: intacto, limpio, seco, bien adherido</p>
+                            <div class="radio-group">
+                                <label class="radio-option success">
+                                    <input type="radio" name="transparentDressing" value="Optimo" required onchange="checkCurationRequired()">
+                                    <span>Optimo - Integro y limpio</span>
+                                </label>
+                                <label class="radio-option warning">
+                                    <input type="radio" name="transparentDressing" value="Parcialmente-despegado" onchange="checkCurationRequired()">
+                                    <span>Parcialmente despegado (>25%)</span>
+                                </label>
+                                <label class="radio-option danger">
+                                    <input type="radio" name="transparentDressing" value="Humedo-sucio" onchange="checkCurationRequired()">
+                                    <span>Humedo/Sucio - CAMBIAR</span>
+                                </label>
+                                <label class="radio-option danger">
+                                    <input type="radio" name="transparentDressing" value="No-transparente" onchange="checkCurationRequired()">
+                                    <span>No es transparente - CAMBIAR</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- 5. VISIBILIDAD DEL PUNTO -->
-                    <div class="form-group">
-                        <label>5. VISIBILIDAD DEL PUNTO DE INSERCIÓN</label>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="insertionVisible" value="Si" required onchange="checkCurationRequired()">
-                                <span>✅ Sí - Completamente visible</span>
-                            </label>
-                            <label class="radio-option warning">
-                                <input type="radio" name="insertionVisible" value="Parcial" onchange="checkCurationRequired()">
-                                <span>⚠️ Parcialmente visible</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="insertionVisible" value="No" onchange="checkCurationRequired()">
-                                <span>❌ No visible - REQUIERE CURACIÓN</span>
-                            </label>
+                        <div class="form-group">
+                            <label><span class="badge">5</span> VISIBILIDAD DEL PUNTO DE INSERCION</label>
+                            <div class="radio-group">
+                                <label class="radio-option success">
+                                    <input type="radio" name="insertionVisible" value="Si" required onchange="checkCurationRequired()">
+                                    <span>Si - Completamente visible</span>
+                                </label>
+                                <label class="radio-option warning">
+                                    <input type="radio" name="insertionVisible" value="Parcial" onchange="checkCurationRequired()">
+                                    <span>Parcialmente visible</span>
+                                </label>
+                                <label class="radio-option danger">
+                                    <input type="radio" name="insertionVisible" value="No" onchange="checkCurationRequired()">
+                                    <span>No visible - REQUIERE CURACION</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- 6. ESTADO DEL SITIO -->
-                    <div class="form-group" style="background: #ffebee; padding: 15px; border-radius: 8px; border-left: 4px solid #f44336;">
-                        <label style="color: #c62828; font-weight: bold;">6. ESTADO DEL SITIO DE INSERCIÓN</label>
-                        <small style="color: #666;">Evaluar: enrojecimiento, calor, dolor, secreción o signos de infección local</small>
-                        <div class="radio-group" style="margin-top: 10px;">
-                            <label class="radio-option success">
-                                <input type="radio" name="skinCondition" value="Normal" required onchange="checkCurationRequired()">
-                                <span>✅ Normal - Sin signos de infección</span>
-                            </label>
-                            <label class="radio-option warning">
-                                <input type="radio" name="skinCondition" value="Eritema-leve" onchange="checkCurationRequired()">
-                                <span>⚠️ Eritema leve sin otros signos</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="skinCondition" value="Sucio" onchange="checkCurationRequired()">
-                                <span>⚠️ Sitio sucio (con residuos)</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="skinCondition" value="Sangrado-visible" onchange="checkCurationRequired()">
-                                <span>🚨 Sangrado visible en el sitio</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="skinCondition" value="Signos-infeccion" onchange="checkCurationRequired()">
-                                <span>🚨 Enrojecimiento + calor/dolor</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="skinCondition" value="Secrecion-purulenta" onchange="checkCurationRequired()">
-                                <span>🚨 SECRECIÓN PURULENTA</span>
-                            </label>
+                        <div class="form-highlight-danger">
+                            <label><span class="badge">6</span> ESTADO DEL SITIO DE INSERCION</label>
+                            <p class="form-helper">Evaluar: enrojecimiento, calor, dolor, secrecion o signos de infeccion local</p>
+                            <div class="radio-group" style="margin-top: 10px;">
+                                <label class="radio-option success">
+                                    <input type="radio" name="skinCondition" value="Normal" required onchange="checkCurationRequired()">
+                                    <span>Normal - Sin signos de infeccion</span>
+                                </label>
+                                <label class="radio-option warning">
+                                    <input type="radio" name="skinCondition" value="Eritema-leve" onchange="checkCurationRequired()">
+                                    <span>Eritema leve sin otros signos</span>
+                                </label>
+                                <label class="radio-option danger">
+                                    <input type="radio" name="skinCondition" value="Sucio" onchange="checkCurationRequired()">
+                                    <span>Sitio sucio (con residuos)</span>
+                                </label>
+                                <label class="radio-option danger">
+                                    <input type="radio" name="skinCondition" value="Sangrado-visible" onchange="checkCurationRequired()">
+                                    <span>Sangrado visible en el sitio</span>
+                                </label>
+                                <label class="radio-option danger">
+                                    <input type="radio" name="skinCondition" value="Signos-infeccion" onchange="checkCurationRequired()">
+                                    <span>Enrojecimiento + calor/dolor</span>
+                                </label>
+                                <label class="radio-option danger">
+                                    <input type="radio" name="skinCondition" value="Secrecion-purulenta" onchange="checkCurationRequired()">
+                                    <span>SECRECION PURULENTA</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- 7. BAÑO CON CHG -->
-                    <div class="form-group">
-                        <label>7. BAÑO CON CLORHEXIDINA 2%</label>
-                        <small style="color: #666;">Cada 72 horas (excepto cabeza)</small>
-                        <div class="radio-group">
-                            <label class="radio-option success">
-                                <input type="radio" name="chgbath" value="Si" required>
-                                <span>✅ Sí</span>
-                            </label>
-                            <label class="radio-option danger">
-                                <input type="radio" name="chgbath" value="No">
-                                <span>❌ No</span>
-                            </label>
-                            <label class="radio-option">
-                                <input type="radio" name="chgbath" value="Contraindicado">
-                                <span>⚠️ Contraindicado</span>
-                            </label>
+                        <div class="form-group">
+                            <label><span class="badge">7</span> BANO CON CLORHEXIDINA 2%</label>
+                            <p class="form-helper">Cada 72 horas (excepto cabeza)</p>
+                            <div class="radio-group">
+                                <label class="radio-option success">
+                                    <input type="radio" name="chgbath" value="Si" required>
+                                    <span>Si</span>
+                                </label>
+                                <label class="radio-option danger">
+                                    <input type="radio" name="chgbath" value="No">
+                                    <span>No</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="chgbath" value="Contraindicado">
+                                    <span>Contraindicado</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
 
-                    <!-- FECHA DE ÚLTIMA CURACIÓN -->
-                    <div class="form-group" style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
-                        <label style="font-weight: bold; color: #1565c0; font-size: 16px;">
-                            📅 Fecha exacta de última curación <span class="required">*</span>
-                        </label>
-                        <div style="margin-top: 10px;">
-                            <input type="date" 
-                                   id="lastDressingDate" 
-                                   onchange="calculateDaysSinceDressing()"
-                                   style="font-size: 16px; padding: 10px; border: 2px solid #2196f3; border-radius: 5px;"
-                                   required>
-                            <small style="color: #666; display: block; margin-top: 5px;">
-                                ℹ️ Si es primera vez, ingrese la fecha de inserción del catéter
-                            </small>
+                        <div class="form-highlight-info">
+                            <label style="font-weight: bold;">Fecha exacta de ultima curacion <span class="required">*</span></label>
+                            <div style="margin-top: 10px;">
+                                <input type="date" id="lastDressingDate" onchange="calculateDaysSinceDressing()" required>
+                                <p class="form-helper">Si es primera vez, ingrese la fecha de insercion del cateter</p>
+                            </div>
+                            <div id="dressingDaysInfo" style="margin-top: 10px;"></div>
                         </div>
-                        
-                        <div id="dressingDaysInfo" style="margin-top: 10px;"></div>
-                    </div>
 
-                    <!-- ALERTA DE CURACIÓN -->
-                    <div id="curationAlert" class="alert hidden" style="margin-top: 20px;"></div>
-                    
-                    <div class="form-group">
-                        <label>Observaciones</label>
-                        <textarea id="observations" rows="3" placeholder="Observaciones adicionales..."></textarea>
+                        <div id="curationAlert" class="alert hidden" style="margin-top: 20px;"></div>
+
+                        <div class="form-group">
+                            <label>Observaciones</label>
+                            <textarea id="observations" rows="3" placeholder="Observaciones adicionales..."></textarea>
+                        </div>
                     </div>
                 </div>
-                
-                <!-- SOLO botón guardar seguimiento -->
-                <button class="btn btn-primary" onclick="saveFollowUp()">💾 Guardar Seguimiento</button>
-                <button class="btn btn-secondary" onclick="backToStart()">← Volver</button>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" onclick="saveFollowUp()">Guardar Seguimiento</button>
+                    <button class="btn btn-back" onclick="backToStart()">Volver</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         // ====================================
-        // CONFIGURACIÓN DE SUPABASE
+        // CONFIGURACION DE SUPABASE
         // ====================================
         const SUPABASE_URL = 'https://gkiwuznolmotbcxlmtod.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdraXd1em5vbG1vdGJjeGxtdG9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg5NzQwMjAsImV4cCI6MjA3NDU1MDAyMH0.niDF1TYj3WN3CMgoPSxoFxykFY8GTWlhiopQKWlFZpc';
-        
+
         var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        
+
         let currentPatient = null;
 
         // ====================================
-        // FUNCIONES DE ESTADÍSTICAS
+        // UTILIDADES
+        // ====================================
+        function sanitizeHTML(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>"']/g, function(match) {
+                const escape = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                };
+                return escape[match];
+            });
+        }
+
+        function daysBetween(date1, date2) {
+            const d1 = new Date(date1);
+            const d2 = new Date(date2);
+            d1.setHours(0,0,0,0);
+            d2.setHours(0,0,0,0);
+            return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('es-CO', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function showLoading(message = 'Cargando...') {
+            document.getElementById('loadingText').textContent = message;
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast toast-' + type;
+            toast.innerHTML = message;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+        }
+
+        function validateRadioGroups(groups, errorMessage) {
+            for (let group of groups) {
+                if (!document.querySelector('input[name="' + group + '"]:checked')) {
+                    showToast(errorMessage, 'error');
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function checkConnection() {
+            const indicator = document.getElementById('connectionIndicator');
+            const text = document.getElementById('connectionText');
+            if (navigator.onLine) {
+                indicator.className = 'connection-indicator connection-online';
+                text.textContent = 'Conectado';
+            } else {
+                indicator.className = 'connection-indicator connection-offline';
+                text.textContent = 'Sin conexion';
+            }
+        }
+
+        // ====================================
+        // FUNCIONES DE ESTADISTICAS
         // ====================================
         async function loadStats() {
             try {
-                const { data, error } = await supabase
-                    .rpc('get_current_stats');
-                
+                const { data, error } = await supabase.rpc('get_current_stats');
+
                 if (data && data.length > 0) {
                     const stats = data[0];
                     document.getElementById('statToday').textContent = stats.today_audits || 0;
@@ -1091,12 +1407,12 @@
                     document.getElementById('statAlerts').textContent = stats.active_alerts || 0;
                 }
             } catch (error) {
-                console.error('Error cargando estadísticas:', error);
+                console.error('Error cargando estadisticas:', error);
             }
         }
 
         // ====================================
-        // NAVEGACIÓN CORREGIDA
+        // NAVEGACION
         // ====================================
         function startFirstTime() {
             hideAll();
@@ -1118,7 +1434,6 @@
             window.searchMode = 'removal';
         }
 
-
         function toggleBundleInsercion() {
             const verifiable = document.querySelector('input[name="insertionVerifiable"]:checked');
             const bundleDiv = document.getElementById('bundleInsercion');
@@ -1128,13 +1443,30 @@
                 bundleDiv.style.display = 'block';
             }
         }
+
+        function toggleRemovalMode() {
+            const infoComplete = document.querySelector('input[name="removalInfoComplete"]:checked');
+            const optionalFields = document.getElementById('removalOptionalFields');
+
+            if (infoComplete && infoComplete.value === 'No') {
+                optionalFields.style.display = 'none';
+                document.querySelectorAll('#removalOptionalFields input[required]').forEach(el => {
+                    el.removeAttribute('required');
+                });
+            } else {
+                optionalFields.style.display = 'block';
+                document.querySelector('input[name="cultureTaken"]').setAttribute('required', 'true');
+                document.querySelector('input[name="documented"]').setAttribute('required', 'true');
+                document.getElementById('removalAuditor').setAttribute('required', 'true');
+            }
+        }
+
         function backToStart() {
             hideAll();
             document.getElementById('selectType').classList.remove('hidden');
             currentPatient = null;
             window.searchMode = null;
-            
-            // Limpiar formularios
+
             document.querySelectorAll('input[type="text"], input[type="date"], textarea').forEach(input => {
                 input.value = '';
             });
@@ -1144,7 +1476,10 @@
             document.querySelectorAll('select').forEach(select => {
                 select.selectedIndex = 0;
             });
-            
+
+            document.getElementById('bundleInsercion').style.display = 'block';
+            document.getElementById('removalOptionalFields').style.display = 'block';
+
             loadStats();
         }
 
@@ -1157,46 +1492,45 @@
         }
 
         // ====================================
-        // BÚSQUEDA DE PACIENTE
+        // BUSQUEDA DE PACIENTE
         // ====================================
         async function searchPatient() {
             const doc = document.getElementById('searchDoc').value.trim();
-            
+
             if (!doc) {
-                alert('Por favor ingrese un número de documento');
+                showToast('Por favor ingrese un numero de documento', 'error');
                 return;
             }
-            
+
+            showLoading('Buscando paciente...');
+
             const { data, error } = await supabase
                 .from('patients')
                 .select('*')
                 .eq('document', doc)
                 .single();
-            
+
+            hideLoading();
+
             if (error || !data) {
-                alert('❌ Paciente no encontrado.\n\nDebe registrar PRIMERA VEZ antes de hacer seguimiento o retiro.');
+                showToast('Paciente no encontrado. Debe registrar PRIMERA VEZ antes de hacer seguimiento o retiro.', 'error');
                 return;
             }
-            
+
             if (data.catheter_removed && window.searchMode !== 'removal') {
-                alert('⚠️ Este catéter ya fue retirado el ' + 
-                      new Date(data.removal_date).toLocaleDateString() + 
-                      '\n\nMotivo: ' + data.removal_reason);
+                showToast('Este cateter ya fue retirado el ' + formatDate(data.removal_date) + '. Motivo: ' + data.removal_reason, 'warning');
                 return;
             }
-            
+
             currentPatient = data;
-            
-            const insertDate = new Date(data.insertion_date);
-            const today = new Date();
-            const days = Math.ceil((today - insertDate) / (1000 * 60 * 60 * 24));
-            
+
+            const days = daysBetween(data.insertion_date, new Date());
+
             let dressingInfo = '';
             if (data.last_dressing_date) {
-                const lastDressing = new Date(data.last_dressing_date);
-                const daysSinceDressing = Math.ceil((today - lastDressing) / (1000 * 60 * 60 * 24));
-                dressingInfo = `<br><strong>Última curación:</strong> hace ${daysSinceDressing} días (${lastDressing.toLocaleDateString()})`;
-                
+                const daysSinceDressing = daysBetween(data.last_dressing_date, new Date());
+                dressingInfo = '<br><strong>Ultima curacion:</strong> hace ' + daysSinceDressing + ' dias (' + formatDate(data.last_dressing_date) + ')';
+
                 if (window.searchMode === 'followup') {
                     setTimeout(() => {
                         const dateField = document.getElementById('lastDressingDate');
@@ -1207,382 +1541,336 @@
                     }, 100);
                 }
             }
-            
+
             if (window.searchMode === 'removal') {
-                // Mostrar formulario de RETIRO
-                document.getElementById('patientInfoCardRemoval').innerHTML = `
-                    <h3>👤 ${data.name}</h3>
-                    <div style="margin-top: 10px;">
-                        <strong>Documento:</strong> ${data.document}<br>
-                        <strong>Fecha inserción:</strong> ${new Date(data.insertion_date).toLocaleDateString()}<br>
-                        <strong>Tipo acceso:</strong> ${data.access_type}<br>
-                        <strong>Servicio:</strong> ${data.service}
-                        ${dressingInfo}
-                    </div>
-                `;
-                
-                document.getElementById('catheterDaysFinal').innerHTML = `
-                    <div class="${days > 7 ? 'days-danger' : 'days-normal'}">
-                        TOTAL: ${days} DÍAS CON CATÉTER
-                        ${days > 7 ? '<div style="font-size: 18px; margin-top: 10px;">⚠️ Catéter de larga duración</div>' : ''}
-                    </div>
-                `;
-                
+                document.getElementById('patientInfoCardRemoval').innerHTML =
+                    '<h3>' + sanitizeHTML(data.name) + '</h3>' +
+                    '<div style="margin-top: 10px;">' +
+                        '<strong>Documento:</strong> ' + sanitizeHTML(data.document) + '<br>' +
+                        '<strong>Fecha insercion:</strong> ' + formatDate(data.insertion_date) + '<br>' +
+                        '<strong>Tipo acceso:</strong> ' + sanitizeHTML(data.access_type) + '<br>' +
+                        '<strong>Servicio:</strong> ' + sanitizeHTML(data.service) +
+                        dressingInfo +
+                    '</div>';
+
+                document.getElementById('catheterDaysFinal').innerHTML =
+                    '<div class="' + (days > 7 ? 'days-danger' : 'days-normal') + '">' +
+                        'TOTAL: ' + days + ' DIAS CON CATETER' +
+                        (days > 7 ? '<div style="font-size: 18px; margin-top: 10px;">Cateter de larga duracion</div>' : '') +
+                    '</div>';
+
                 document.getElementById('removalDate').value = new Date().toISOString().split('T')[0];
-                
+
                 hideAll();
                 document.getElementById('removalForm').classList.remove('hidden');
             } else {
-                // Mostrar formulario de SEGUIMIENTO
-                document.getElementById('patientInfoCard').innerHTML = `
-                    <h3>👤 ${data.name}</h3>
-                    <div style="margin-top: 10px;">
-                        <strong>Documento:</strong> ${data.document}<br>
-                        <strong>Fecha inserción:</strong> ${new Date(data.insertion_date).toLocaleDateString()}<br>
-                        <strong>Tipo acceso:</strong> ${data.access_type}<br>
-                        <strong>Servicio:</strong> ${data.service}
-                        ${dressingInfo}
-                    </div>
-                `;
-                
+                document.getElementById('patientInfoCard').innerHTML =
+                    '<h3>' + sanitizeHTML(data.name) + '</h3>' +
+                    '<div style="margin-top: 10px;">' +
+                        '<strong>Documento:</strong> ' + sanitizeHTML(data.document) + '<br>' +
+                        '<strong>Fecha insercion:</strong> ' + formatDate(data.insertion_date) + '<br>' +
+                        '<strong>Tipo acceso:</strong> ' + sanitizeHTML(data.access_type) + '<br>' +
+                        '<strong>Servicio:</strong> ' + sanitizeHTML(data.service) +
+                        dressingInfo +
+                    '</div>';
+
                 let daysClass = 'days-normal';
                 let alertMessage = '';
-                
+
                 if (days > 7) {
                     daysClass = 'days-danger';
-                    alertMessage = '⚠️ EVALUAR NECESIDAD URGENTEMENTE';
+                    alertMessage = 'EVALUAR NECESIDAD URGENTEMENTE';
                 } else if (days > 3) {
                     daysClass = 'days-warning';
                 }
-                
-                document.getElementById('catheterDaysDisplay').innerHTML = `
-                    <div class="${daysClass}">
-                        DÍA ${days}
-                        ${alertMessage ? `<div style="font-size: 18px; margin-top: 10px;">${alertMessage}</div>` : ''}
-                    </div>
-                `;
-                
+
+                document.getElementById('catheterDaysDisplay').innerHTML =
+                    '<div class="' + daysClass + '">' +
+                        'DIA ' + days +
+                        (alertMessage ? '<div style="font-size: 18px; margin-top: 10px;">' + alertMessage + '</div>' : '') +
+                    '</div>';
+
+                if (data.bed) {
+                    document.getElementById('bedFollow').value = data.bed;
+                }
+
                 hideAll();
                 document.getElementById('followUpForm').classList.remove('hidden');
             }
         }
 
         // ====================================
-        // SISTEMA INTELIGENTE DE CURACIÓN
+        // SISTEMA DE CURACION
         // ====================================
         function checkCurationRequired() {
             const reasons = [];
             let required = false;
             let urgencyLevel = 'normal';
             let nextCurationIn = 0;
-            
+
             const transparentDressing = document.querySelector('input[name="transparentDressing"]:checked');
             const insertionVisible = document.querySelector('input[name="insertionVisible"]:checked');
             const skinCondition = document.querySelector('input[name="skinCondition"]:checked');
             const lastDressingDate = document.getElementById('lastDressingDate');
-            
+
             let daysSinceLastDressing = 0;
             let lastCurationDateStr = 'Sin registro';
-            
+
             if (lastDressingDate && lastDressingDate.value) {
-                const lastDate = new Date(lastDressingDate.value);
-                const today = new Date();
-                today.setHours(0,0,0,0);
-                lastDate.setHours(0,0,0,0);
-                daysSinceLastDressing = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
-                lastCurationDateStr = lastDate.toLocaleDateString('es-ES', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                });
+                daysSinceLastDressing = daysBetween(lastDressingDate.value, new Date());
+                lastCurationDateStr = formatDate(lastDressingDate.value);
             }
-            
+
             const urgentConditions = [];
 
-            if (skinCondition && (skinCondition.value === 'Signos-infeccion' || 
-                skinCondition.value === 'Secrecion-purulenta' || 
-                skinCondition.value === 'Eritema-leve' || skinCondition.value === 'Sucio' || skinCondition.value === 'Sangrado-visible')) {
+            if (skinCondition && ['Signos-infeccion', 'Secrecion-purulenta', 'Eritema-leve', 'Sucio', 'Sangrado-visible'].includes(skinCondition.value)) {
                 if (skinCondition.value === 'Secrecion-purulenta') {
-                    urgentConditions.push('SECRECIÓN PURULENTA en sitio de inserción');
+                    urgentConditions.push('SECRECION PURULENTA en sitio de insercion');
                 } else if (skinCondition.value === 'Signos-infeccion') {
-                    urgentConditions.push('Signos de infección (enrojecimiento + calor/dolor)');
+                    urgentConditions.push('Signos de infeccion (enrojecimiento + calor/dolor)');
                 } else if (skinCondition.value === 'Sucio') {
-                    urgentConditions.push('Sitio de inserción sucio - requiere limpieza');
+                    urgentConditions.push('Sitio de insercion sucio - requiere limpieza');
                 } else if (skinCondition.value === 'Sangrado-visible') {
-                    urgentConditions.push('Sangrado visible en sitio de inserción');
+                    urgentConditions.push('Sangrado visible en sitio de insercion');
                 }
                 required = true;
                 urgencyLevel = 'urgent';
             }
 
-            if (transparentDressing && (transparentDressing.value === 'Humedo-sucio' || 
-                transparentDressing.value === 'No-transparente' || 
-                transparentDressing.value === 'Parcialmente-despegado')) {
+            if (transparentDressing && ['Humedo-sucio', 'No-transparente', 'Parcialmente-despegado'].includes(transparentDressing.value)) {
                 if (transparentDressing.value === 'Humedo-sucio') {
-                    urgentConditions.push('Apósito húmedo o sucio - requiere cambio inmediato');
+                    urgentConditions.push('Aposito humedo o sucio - requiere cambio inmediato');
                 } else if (transparentDressing.value === 'No-transparente') {
-                    urgentConditions.push('Apósito no transparente - cambiar por protocolo');
+                    urgentConditions.push('Aposito no transparente - cambiar por protocolo');
                 } else {
-                    urgentConditions.push('Apósito despegado >25% - requiere cambio');
+                    urgentConditions.push('Aposito despegado >25% - requiere cambio');
                 }
                 required = true;
                 urgencyLevel = 'urgent';
             }
 
-            if (insertionVisible && (insertionVisible.value === 'No' || 
-                insertionVisible.value === 'Parcial')) {
+            if (insertionVisible && ['No', 'Parcial'].includes(insertionVisible.value)) {
                 if (insertionVisible.value === 'No') {
-                    urgentConditions.push('Punto de inserción NO visible - curación urgente');
+                    urgentConditions.push('Punto de insercion NO visible - curacion urgente');
                 } else {
-                    urgentConditions.push('Punto parcialmente visible - evaluar necesidad de curación');
+                    urgentConditions.push('Punto parcialmente visible - evaluar necesidad de curacion');
                 }
                 required = true;
                 urgencyLevel = insertionVisible.value === 'No' ? 'urgent' : 'today';
             }
-            
+
             if (!required && daysSinceLastDressing >= 7) {
                 required = true;
                 urgencyLevel = 'today';
-                reasons.push(`Han transcurrido ${daysSinceLastDressing} días desde la última curación`);
+                reasons.push('Han transcurrido ' + daysSinceLastDressing + ' dias desde la ultima curacion');
             }
-            
+
             if (!required && daysSinceLastDressing < 7) {
                 nextCurationIn = 7 - daysSinceLastDressing;
             }
-            
+
             const alertDiv = document.getElementById('curationAlert');
-            
+
             if (required) {
                 alertDiv.classList.remove('hidden');
-                
+
                 if (urgencyLevel === 'urgent') {
-                    alertDiv.className = 'alert alert-danger';
-                    alertDiv.innerHTML = `
-                        <div style="border-left: 5px solid #f44336; padding-left: 15px;">
-                            <h4>🚨 CURACIÓN URGENTE REQUERIDA</h4>
-                            <div style="margin: 15px 0;">
-                                <strong>Hallazgos que requieren curación INMEDIATA:</strong>
-                                <ul style="margin-top: 10px;">
-                                    ${urgentConditions.map(c => `<li>${c}</li>`).join('')}
-                                </ul>
-                            </div>
-                            <div style="background: #ffebee; padding: 10px; border-radius: 5px; margin: 15px 0;">
-                                <strong>📋 Protocolo CDC/NHSN:</strong> 
-                                "Los apósitos deben cambiarse inmediatamente si se despegan, humedecen, 
-                                ensucian visiblemente o si hay signos de infección en el sitio"
-                            </div>
-                            <div style="border-top: 2px solid #f44336; padding-top: 15px; margin-top: 15px;">
-                                <label style="font-weight: bold; font-size: 16px;">
-                                    <input type="checkbox" id="curationDone" onchange="toggleCurationFields()" 
-                                           style="width: 20px; height: 20px; vertical-align: middle;">
-                                    ✅ Confirmar realización de curación AHORA
-                                </label>
-                                <div id="curationFields" class="hidden" style="margin-top: 15px; background: #fff3e0; padding: 15px; border-radius: 5px;">
-                                    <input type="text" id="curationBy" 
-                                           placeholder="Nombre completo del profesional que realizó la curación" 
-                                           style="width: 100%; padding: 10px; font-size: 16px; margin-bottom: 10px;">
-                                    <textarea id="curationNotes" 
-                                             placeholder="Observaciones de la curación (ej: tipo de antiséptico usado, estado del sitio)"
-                                             style="width: 100%; padding: 10px;" rows="3"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                    alertDiv.className = 'alert alert-danger alert-pulse';
+                    alertDiv.innerHTML =
+                        '<div style="border-left: 4px solid var(--error); padding-left: 15px;">' +
+                            '<h4>CURACION URGENTE REQUERIDA</h4>' +
+                            '<div style="margin: 15px 0;">' +
+                                '<strong>Hallazgos que requieren curacion INMEDIATA:</strong>' +
+                                '<ul style="margin-top: 10px;">' +
+                                    urgentConditions.map(function(c) { return '<li>' + c + '</li>'; }).join('') +
+                                '</ul>' +
+                            '</div>' +
+                            '<div style="background: rgba(220,53,69,0.1); padding: 10px; border-radius: 5px; margin: 15px 0;">' +
+                                '<strong>Protocolo CDC/NHSN:</strong> ' +
+                                '"Los apositos deben cambiarse inmediatamente si se despegan, humedecen, ' +
+                                'ensucian visiblemente o si hay signos de infeccion en el sitio"' +
+                            '</div>' +
+                            '<div style="border-top: 2px solid var(--error); padding-top: 15px; margin-top: 15px;">' +
+                                '<label style="font-weight: bold; font-size: 16px; cursor: pointer;">' +
+                                    '<input type="checkbox" id="curationDone" onchange="toggleCurationFields()" ' +
+                                           'style="width: 20px; height: 20px; vertical-align: middle; margin-right: 10px;">' +
+                                    'Confirmar realizacion de curacion AHORA' +
+                                '</label>' +
+                                '<div id="curationFields" class="hidden curation-fields" style="margin-top: 15px; background: var(--gris-claro); padding: 15px; border-radius: 8px;">' +
+                                    '<input type="text" id="curationBy" ' +
+                                           'placeholder="Nombre completo del profesional que realizo la curacion" ' +
+                                           'style="margin-bottom: 10px;">' +
+                                    '<textarea id="curationNotes" ' +
+                                             'placeholder="Observaciones de la curacion (ej: tipo de antiseptico usado, estado del sitio)"' +
+                                             'rows="3"></textarea>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>';
                 } else {
                     alertDiv.className = 'alert alert-warning';
-                    alertDiv.innerHTML = `
-                        <div style="border-left: 5px solid #ff9800; padding-left: 15px;">
-                            <h4>📅 CURACIÓN PROGRAMADA - HOY DÍA ${daysSinceLastDressing}</h4>
-                            <div style="margin: 15px 0;">
-                                <strong>Información del protocolo:</strong>
-                                <ul style="margin-top: 10px;">
-                                    <li>Última curación: ${lastCurationDateStr}</li>
-                                    <li>Han transcurrido: <strong>${daysSinceLastDressing} días</strong></li>
-                                    <li>Protocolo institucional: Cambio cada <strong>7 días</strong> para apósitos transparentes</li>
-                                </ul>
-                            </div>
-                            <div style="background: #fff3e0; padding: 10px; border-radius: 5px;">
-                                📋 <strong>Recomendación:</strong> Realizar curación programada HOY siguiendo técnica aséptica
-                            </div>
-                            <div style="border-top: 2px solid #ff9800; padding-top: 15px; margin-top: 15px;">
-                                <label style="font-weight: bold; font-size: 16px;">
-                                    <input type="checkbox" id="curationDone" onchange="toggleCurationFields()"
-                                           style="width: 20px; height: 20px; vertical-align: middle;">
-                                    ✅ Confirmar realización de curación
-                                </label>
-                                <div id="curationFields" class="hidden" style="margin-top: 15px; background: #fff3e0; padding: 15px; border-radius: 5px;">
-                                    <input type="text" id="curationBy" 
-                                           placeholder="Nombre completo del profesional" 
-                                           style="width: 100%; padding: 10px; font-size: 16px; margin-bottom: 10px;">
-                                    <textarea id="curationNotes" 
-                                             placeholder="Observaciones (opcional)"
-                                             style="width: 100%; padding: 10px;" rows="2"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                    alertDiv.innerHTML =
+                        '<div style="border-left: 4px solid var(--amarillo); padding-left: 15px;">' +
+                            '<h4>CURACION PROGRAMADA - HOY DIA ' + daysSinceLastDressing + '</h4>' +
+                            '<div style="margin: 15px 0;">' +
+                                '<strong>Informacion del protocolo:</strong>' +
+                                '<ul style="margin-top: 10px;">' +
+                                    '<li>Ultima curacion: ' + lastCurationDateStr + '</li>' +
+                                    '<li>Han transcurrido: <strong>' + daysSinceLastDressing + ' dias</strong></li>' +
+                                    '<li>Protocolo institucional: Cambio cada <strong>7 dias</strong> para apositos transparentes</li>' +
+                                '</ul>' +
+                            '</div>' +
+                            '<div style="background: rgba(253,185,19,0.2); padding: 10px; border-radius: 5px;">' +
+                                '<strong>Recomendacion:</strong> Realizar curacion programada HOY siguiendo tecnica aseptica' +
+                            '</div>' +
+                            '<div style="border-top: 2px solid var(--amarillo); padding-top: 15px; margin-top: 15px;">' +
+                                '<label style="font-weight: bold; font-size: 16px; cursor: pointer;">' +
+                                    '<input type="checkbox" id="curationDone" onchange="toggleCurationFields()"' +
+                                           'style="width: 20px; height: 20px; vertical-align: middle; margin-right: 10px;">' +
+                                    'Confirmar realizacion de curacion' +
+                                '</label>' +
+                                '<div id="curationFields" class="hidden curation-fields" style="margin-top: 15px; background: var(--gris-claro); padding: 15px; border-radius: 8px;">' +
+                                    '<input type="text" id="curationBy" ' +
+                                           'placeholder="Nombre completo del profesional" ' +
+                                           'style="margin-bottom: 10px;">' +
+                                    '<textarea id="curationNotes" ' +
+                                             'placeholder="Observaciones (opcional)"' +
+                                             'rows="2"></textarea>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>';
                 }
             } else {
                 if (daysSinceLastDressing >= 0 && nextCurationIn > 0) {
                     alertDiv.classList.remove('hidden');
                     alertDiv.className = 'alert alert-success';
-                    
+
                     const nextCurationDate = new Date();
                     nextCurationDate.setDate(nextCurationDate.getDate() + nextCurationIn);
-                    const nextDateStr = nextCurationDate.toLocaleDateString('es-ES', { 
-                        weekday: 'long', 
-                        day: 'numeric',
-                        month: 'long' 
-                    });
-                    
+                    const nextDateStr = formatDate(nextCurationDate);
+
                     let urgencyMessage = '';
                     if (nextCurationIn === 1) {
-                        urgencyMessage = `
-                            <div style="background: #fff3e0; padding: 10px; border-radius: 5px; margin-top: 10px;">
-                                ⏰ <strong>ATENCIÓN:</strong> MAÑANA ${nextDateStr} corresponde la curación programada
-                            </div>
-                        `;
+                        urgencyMessage =
+                            '<div style="background: rgba(253,185,19,0.2); padding: 10px; border-radius: 5px; margin-top: 10px;">' +
+                                '<strong>ATENCION:</strong> MANANA corresponde la curacion programada' +
+                            '</div>';
                     }
-                    
-                    alertDiv.innerHTML = `
-                        <div style="border-left: 5px solid #4caf50; padding-left: 15px;">
-                            <h4>✅ NO REQUIERE CURACIÓN HOY - DÍA ${daysSinceLastDressing} DE 7</h4>
-                            <div style="margin: 15px 0;">
-                                <strong>Estado actual del catéter:</strong>
-                                <ul style="margin-top: 10px;">
-                                    <li>Última curación: ${lastCurationDateStr}</li>
-                                    <li>Días transcurridos: <strong>${daysSinceLastDressing} de 7 días</strong></li>
-                                    <li>Apósito: ${transparentDressing?.value === 'Optimo' ? '✅ Transparente e íntegro' : '⚠️ Verificar estado'}</li>
-                                    <li>Sitio de inserción: ${insertionVisible?.value === 'Si' ? '✅ Visible sin alteraciones' : '⚠️ Verificar'}</li>
-                                    <li>Condición de la piel: ${skinCondition?.value === 'Normal' ? '✅ Sin signos de infección' : '⚠️ Evaluar'}</li>
-                                </ul>
-                            </div>
-                            <div style="background: #e8f5e9; padding: 15px; border-radius: 5px; margin-top: 15px;">
-                                <strong>📅 PRÓXIMA CURACIÓN PROGRAMADA:</strong><br>
-                                <span style="font-size: 18px; color: #2e7d32;">
-                                    ${nextDateStr.toUpperCase()} (en ${nextCurationIn} ${nextCurationIn === 1 ? 'día' : 'días'})
-                                </span>
-                            </div>
-                            ${urgencyMessage}
-                            <div style="margin-top: 15px; padding: 10px; background: #f5f5f5; border-radius: 5px;">
-                                <small>
-                                    📌 <strong>Recordatorio del protocolo:</strong> 
-                                    Realizar curación si el apósito se despega >25%, se humedece, 
-                                    o aparecen signos de infección antes de los 7 días programados.
-                                </small>
-                            </div>
-                        </div>
-                    `;
+
+                    alertDiv.innerHTML =
+                        '<div style="border-left: 4px solid var(--success); padding-left: 15px;">' +
+                            '<h4>NO REQUIERE CURACION HOY - DIA ' + daysSinceLastDressing + ' DE 7</h4>' +
+                            '<div style="margin: 15px 0;">' +
+                                '<strong>Estado actual del cateter:</strong>' +
+                                '<ul style="margin-top: 10px;">' +
+                                    '<li>Ultima curacion: ' + lastCurationDateStr + '</li>' +
+                                    '<li>Dias transcurridos: <strong>' + daysSinceLastDressing + ' de 7 dias</strong></li>' +
+                                    '<li>Aposito: ' + (transparentDressing && transparentDressing.value === 'Optimo' ? 'Transparente e integro' : 'Verificar estado') + '</li>' +
+                                    '<li>Sitio de insercion: ' + (insertionVisible && insertionVisible.value === 'Si' ? 'Visible sin alteraciones' : 'Verificar') + '</li>' +
+                                    '<li>Condicion de la piel: ' + (skinCondition && skinCondition.value === 'Normal' ? 'Sin signos de infeccion' : 'Evaluar') + '</li>' +
+                                '</ul>' +
+                            '</div>' +
+                            '<div style="background: rgba(40,167,69,0.15); padding: 15px; border-radius: 5px; margin-top: 15px;">' +
+                                '<strong>PROXIMA CURACION PROGRAMADA:</strong><br>' +
+                                '<span style="font-size: 18px; color: var(--success);">' +
+                                    nextDateStr + ' (en ' + nextCurationIn + (nextCurationIn === 1 ? ' dia' : ' dias') + ')' +
+                                '</span>' +
+                            '</div>' +
+                            urgencyMessage +
+                            '<div style="margin-top: 15px; padding: 10px; background: var(--gris-claro); border-radius: 5px;">' +
+                                '<small>' +
+                                    '<strong>Recordatorio del protocolo:</strong> ' +
+                                    'Realizar curacion si el aposito se despega >25%, se humedece, ' +
+                                    'o aparecen signos de infeccion antes de los 7 dias programados.' +
+                                '</small>' +
+                            '</div>' +
+                        '</div>';
                 } else if (!lastDressingDate || !lastDressingDate.value) {
                     alertDiv.classList.remove('hidden');
                     alertDiv.className = 'alert alert-info';
-                    alertDiv.innerHTML = `
-                        <h4>ℹ️ Información de curación pendiente</h4>
-                        <p>Por favor, ingrese la fecha de la última curación para calcular el protocolo.</p>
-                    `;
+                    alertDiv.innerHTML =
+                        '<h4>Informacion de curacion pendiente</h4>' +
+                        '<p>Por favor, ingrese la fecha de la ultima curacion para calcular el protocolo.</p>';
                 }
             }
-            
-            return { 
-                required, 
-                reasons: urgentConditions.concat(reasons), 
-                urgencyLevel, 
-                nextCurationIn,
-                daysSinceLastDressing,
-                lastCurationDateStr
+
+            return {
+                required: required,
+                reasons: urgentConditions.concat(reasons),
+                urgencyLevel: urgencyLevel,
+                nextCurationIn: nextCurationIn,
+                daysSinceLastDressing: daysSinceLastDressing,
+                lastCurationDateStr: lastCurationDateStr
             };
         }
 
         function calculateDaysSinceDressing() {
             const lastDressingDate = document.getElementById('lastDressingDate').value;
             const infoDiv = document.getElementById('dressingDaysInfo');
-            
+
             if (lastDressingDate) {
-                const lastDate = new Date(lastDressingDate);
-                const today = new Date();
-                today.setHours(0,0,0,0);
-                lastDate.setHours(0,0,0,0);
-                
-                const daysSince = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
-                
-                const nextCurationDate = new Date(lastDate);
+                const daysSince = daysBetween(lastDressingDate, new Date());
+
+                const nextCurationDate = new Date(lastDressingDate);
                 nextCurationDate.setDate(nextCurationDate.getDate() + 7);
-                
+
                 let infoHTML = '';
-                
+
                 if (daysSince < 0) {
-                    infoHTML = `
-                        <div style="padding: 10px; background: #ffebee; border-radius: 5px; margin-top: 10px;">
-                            <span style="color: #c62828;">
-                                ⚠️ Error: La fecha no puede ser futura
-                            </span>
-                        </div>
-                    `;
+                    infoHTML =
+                        '<div style="padding: 10px; background: rgba(220,53,69,0.15); border-radius: 5px; margin-top: 10px;">' +
+                            '<span style="color: var(--error);">Error: La fecha no puede ser futura</span>' +
+                        '</div>';
                 } else if (daysSince === 0) {
-                    infoHTML = `
-                        <div style="padding: 10px; background: #e8f5e9; border-radius: 5px; margin-top: 10px;">
-                            <span style="color: #2e7d32; font-weight: bold;">
-                                ✅ Curación realizada HOY - Próxima en 7 días
-                            </span>
-                        </div>
-                    `;
+                    infoHTML =
+                        '<div style="padding: 10px; background: rgba(40,167,69,0.15); border-radius: 5px; margin-top: 10px;">' +
+                            '<span style="color: var(--success); font-weight: bold;">Curacion realizada HOY - Proxima en 7 dias</span>' +
+                        '</div>';
                 } else if (daysSince >= 7) {
-                    infoHTML = `
-                        <div style="padding: 10px; background: #ffebee; border-radius: 5px; margin-top: 10px;">
-                            <span style="color: #c62828; font-weight: bold; font-size: 16px;">
-                                🚨 REQUIERE CURACIÓN HOY - Han pasado ${daysSince} días (protocolo: 7 días)
-                            </span>
-                        </div>
-                    `;
+                    infoHTML =
+                        '<div style="padding: 10px; background: rgba(220,53,69,0.15); border-radius: 5px; margin-top: 10px;">' +
+                            '<span style="color: var(--error); font-weight: bold; font-size: 16px;">' +
+                                'REQUIERE CURACION HOY - Han pasado ' + daysSince + ' dias (protocolo: 7 dias)' +
+                            '</span>' +
+                        '</div>';
                 } else if (daysSince === 6) {
-                    infoHTML = `
-                        <div style="padding: 10px; background: #fff3e0; border-radius: 5px; margin-top: 10px;">
-                            <span style="color: #e65100; font-weight: bold;">
-                                ⏰ MAÑANA toca curación programada (día 7 del protocolo)
-                            </span>
-                        </div>
-                    `;
+                    infoHTML =
+                        '<div style="padding: 10px; background: rgba(253,185,19,0.2); border-radius: 5px; margin-top: 10px;">' +
+                            '<span style="color: #856404; font-weight: bold;">' +
+                                'MANANA toca curacion programada (dia 7 del protocolo)' +
+                            '</span>' +
+                        '</div>';
                 } else {
                     const daysRemaining = 7 - daysSince;
-                    const nextDateStr = nextCurationDate.toLocaleDateString('es-ES', { 
-                        weekday: 'long', 
-                        day: 'numeric',
-                        month: 'long' 
-                    });
-                    
-                    infoHTML = `
-                        <div style="padding: 10px; background: #e8f5e9; border-radius: 5px; margin-top: 10px;">
-                            <div style="color: #2e7d32;">
-                                <strong>📊 Estado actual:</strong>
-                                <ul style="margin: 5px 0; padding-left: 20px;">
-                                    <li>Han pasado: <strong>${daysSince} ${daysSince === 1 ? 'día' : 'días'}</strong></li>
-                                    <li>Faltan: <strong>${daysRemaining} ${daysRemaining === 1 ? 'día' : 'días'}</strong> para la próxima</li>
-                                    <li>Próxima curación: <strong>${nextDateStr}</strong></li>
-                                </ul>
-                            </div>
-                        </div>
-                    `;
+                    const nextDateStr = formatDate(nextCurationDate);
+
+                    infoHTML =
+                        '<div style="padding: 10px; background: rgba(40,167,69,0.15); border-radius: 5px; margin-top: 10px;">' +
+                            '<div style="color: var(--success);">' +
+                                '<strong>Estado actual:</strong>' +
+                                '<ul style="margin: 5px 0; padding-left: 20px;">' +
+                                    '<li>Han pasado: <strong>' + daysSince + (daysSince === 1 ? ' dia' : ' dias') + '</strong></li>' +
+                                    '<li>Faltan: <strong>' + daysRemaining + (daysRemaining === 1 ? ' dia' : ' dias') + '</strong> para la proxima</li>' +
+                                    '<li>Proxima curacion: <strong>' + nextDateStr + '</strong></li>' +
+                                '</ul>' +
+                            '</div>' +
+                        '</div>';
                 }
-                
+
                 infoDiv.innerHTML = infoHTML;
                 checkCurationRequired();
-                
+
             } else {
-                infoDiv.innerHTML = `
-                    <div style="padding: 10px; background: #f5f5f5; border-radius: 5px; margin-top: 10px;">
-                        <span style="color: #666;">
-                            ℹ️ Seleccione la fecha para calcular el protocolo de curación
-                        </span>
-                    </div>
-                `;
+                infoDiv.innerHTML =
+                    '<div style="padding: 10px; background: var(--gris-claro); border-radius: 5px; margin-top: 10px;">' +
+                        '<span style="color: #666;">Seleccione la fecha para calcular el protocolo de curacion</span>' +
+                    '</div>';
             }
         }
 
         function toggleCurationFields() {
             const checkbox = document.getElementById('curationDone');
             const fields = document.getElementById('curationFields');
-            
+
             if (checkbox && checkbox.checked) {
                 fields.classList.remove('hidden');
                 const today = new Date().toISOString().split('T')[0];
@@ -1597,60 +1885,49 @@
         // GUARDAR PRIMERA VEZ
         // ====================================
         async function saveFirstTime() {
-            // Validar campos requeridos
             const requiredFields = ['docFirst', 'nameFirst', 'insertionDate', 'accessType', 'bedFirst', 'auditorFirst'];
             for (let field of requiredFields) {
                 if (!document.getElementById(field).value) {
-                    alert('Por favor complete todos los campos requeridos');
+                    showToast('Por favor complete todos los campos requeridos', 'error');
                     return;
                 }
             }
 
-            // Verificar si la inserción es verificable
             const insertionVerifiable = document.querySelector('input[name="insertionVerifiable"]:checked');
             if (!insertionVerifiable) {
-                alert('Por favor indique si la inserción es verificable');
+                showToast('Por favor indique si la insercion es verificable', 'error');
                 return;
             }
-            
+
             const isVerifiable = insertionVerifiable.value === 'Si';
-            
+
             if (isVerifiable) {
-            
-            // Validar radio buttons - Bundle ANTES
-            const bundleAntes = ['verify', 'consent', 'handwash', 'epp', 'teamCollaboration'];
-            for (let group of bundleAntes) {
-                if (!document.querySelector(`input[name="${group}"]:checked`)) {
-                    alert('Por favor responda todas las preguntas del Bundle ANTES de inserción');
+                const bundleAntes = ['verify', 'consent', 'handwash', 'epp', 'teamCollaboration'];
+                if (!validateRadioGroups(bundleAntes, 'Por favor responda todas las preguntas del Bundle ANTES de insercion')) {
+                    return;
+                }
+
+                const bundleDespues = ['complications', 'biosecurity', 'catheterPrep', 'skinPrep',
+                                       'sterileDrape', 'standardFixation', 'xrayTaken'];
+                if (!validateRadioGroups(bundleDespues, 'Por favor responda todas las preguntas del Bundle DESPUES de insercion')) {
                     return;
                 }
             }
 
-            // Validar radio buttons - Bundle DESPUÉS
-            const bundleDespues = ['complications', 'biosecurity', 'catheterPrep', 'skinPrep', 
-                                   'sterileDrape', 'standardFixation', 'xrayTaken'];
-            for (let group of bundleDespues) {
-                if (!document.querySelector(`input[name="${group}"]:checked`)) {
-                    alert('Por favor responda todas las preguntas del Bundle DESPUÉS de inserción');
-                    return;
-                }
-            }
-            
-            }
-            // Datos del paciente - Primera curación es el día de inserción
+            showLoading('Guardando registro...');
+
             const insertionDate = document.getElementById('insertionDate').value;
             const patientData = {
-                document: document.getElementById('docFirst').value,
-                name: document.getElementById('nameFirst').value,
+                document: document.getElementById('docFirst').value.trim(),
+                name: document.getElementById('nameFirst').value.trim(),
                 insertion_date: insertionDate,
                 access_type: document.getElementById('accessType').value,
                 service: document.getElementById('serviceFirst').value,
-                last_dressing_date: insertionDate, // Primera curación = día de inserción
-                last_dressing_by: document.getElementById('auditorFirst').value
+                bed: document.getElementById('bedFirst').value,
+                last_dressing_date: insertionDate,
+                last_dressing_by: document.getElementById('auditorFirst').value.trim()
             };
-            
 
-            // Verificar si el paciente ya existe
             const { data: existingPatient, error: searchError } = await supabase
                 .from("patients")
                 .select("*")
@@ -1658,26 +1935,28 @@
                 .single();
 
             if (existingPatient) {
-                // Paciente existe - mostrar historial
-                let historyMsg = `Este paciente ya tiene registro previo:\n\n`;
-                historyMsg += `Nombre: ${existingPatient.name}\n`;
-                historyMsg += `Último catéter: ${existingPatient.access_type}\n`;
-                historyMsg += `Fecha inserción: ${new Date(existingPatient.insertion_date).toLocaleDateString()}\n`;
-                
+                hideLoading();
+
+                let historyMsg = 'Este paciente ya tiene registro previo:\n\n';
+                historyMsg += 'Nombre: ' + existingPatient.name + '\n';
+                historyMsg += 'Ultimo cateter: ' + existingPatient.access_type + '\n';
+                historyMsg += 'Fecha insercion: ' + formatDate(existingPatient.insertion_date) + '\n';
+
                 if (existingPatient.catheter_removed) {
-                    historyMsg += `Retirado: ${new Date(existingPatient.removal_date).toLocaleDateString()}\n`;
-                    historyMsg += `Motivo: ${existingPatient.removal_reason}\n`;
+                    historyMsg += 'Retirado: ' + formatDate(existingPatient.removal_date) + '\n';
+                    historyMsg += 'Motivo: ' + existingPatient.removal_reason + '\n';
                 } else {
-                    historyMsg += `Estado: ⚠️ CATÉTER AÚN ACTIVO\n`;
+                    historyMsg += 'Estado: CATETER AUN ACTIVO\n';
                 }
-                
-                historyMsg += `\n¿Desea registrar un NUEVO catéter para este paciente?`;
-                
+
+                historyMsg += '\nDesea registrar un NUEVO cateter para este paciente?';
+
                 if (!confirm(historyMsg)) {
                     return;
                 }
-                
-                // Actualizar registro existente con nuevo catéter
+
+                showLoading('Actualizando registro...');
+
                 const { error: updateError } = await supabase
                     .from("patients")
                     .update({
@@ -1685,6 +1964,7 @@
                         insertion_date: patientData.insertion_date,
                         access_type: patientData.access_type,
                         service: patientData.service,
+                        bed: patientData.bed,
                         last_dressing_date: patientData.last_dressing_date,
                         last_dressing_by: patientData.last_dressing_by,
                         catheter_removed: false,
@@ -1692,109 +1972,111 @@
                         removal_reason: null
                     })
                     .eq("document", patientData.document);
-                
+
                 if (updateError) {
-                    alert("Error al actualizar: " + updateError.message);
+                    hideLoading();
+                    showToast("Error al actualizar: " + updateError.message, 'error');
                     return;
                 }
             } else {
-                // Paciente nuevo - insertar
                 const { error: insertError } = await supabase
                     .from("patients")
                     .insert(patientData);
-                
+
                 if (insertError) {
-                    alert("Error al guardar: " + insertError.message);
+                    hideLoading();
+                    showToast("Error al guardar: " + insertError.message, 'error');
                     return;
                 }
             }
-            
+
+            var compliance = 0;
+            var auditData = {};
+
             if (isVerifiable) {
-            // Calcular cumplimiento
-            let totalPoints = 0;
-            let maxPoints = 12;
-            
-            // Bundle ANTES (5 puntos)
-            if (document.querySelector('input[name="verify"]:checked').value === 'Si') totalPoints++;
-            if (document.querySelector('input[name="consent"]:checked').value === 'Si') totalPoints++;
-            if (document.querySelector('input[name="handwash"]:checked').value === 'Si') totalPoints++;
-            if (document.querySelector('input[name="epp"]:checked').value === 'Si') totalPoints++;
-            if (document.querySelector('input[name="teamCollaboration"]:checked').value === 'Si') totalPoints++;
-            
-            // Bundle DESPUÉS (7 puntos)
-            if (document.querySelector('input[name="complications"]:checked').value === 'No') totalPoints++;
-            if (document.querySelector('input[name="biosecurity"]:checked').value === 'Si') totalPoints++;
-            if (document.querySelector('input[name="catheterPrep"]:checked').value === 'Si') totalPoints++;
-            if (document.querySelector('input[name="skinPrep"]:checked').value === 'Si') totalPoints++;
-            if (document.querySelector('input[name="sterileDrape"]:checked').value === 'Si') totalPoints++;
-            if (document.querySelector('input[name="standardFixation"]:checked').value === 'Si') totalPoints++;
-            
-            // Rx solo cuenta si aplica
-            const xrayValue = document.querySelector('input[name="xrayTaken"]:checked').value;
-            if (xrayValue === 'Si') {
-                totalPoints++;
-            } else if (xrayValue === 'NA') {
-                maxPoints--; // Reducir el máximo si no aplica
-            }
-            
-            var compliance = Math.round((totalPoints / maxPoints) * 100);
-            
-            // Datos de la auditoría con todos los campos
-            var auditData = {
-                patient_doc: patientData.document,
-                audit_type: 'primera',
-                auditor: document.getElementById('auditorFirst').value,
-                bed: document.getElementById('bedFirst').value,
-                catheter_days: 0,
-                bundle_data: {
-                    // Bundle ANTES
-                    verify_indication: document.querySelector('input[name="verify"]:checked').value,
-                    informed_consent: document.querySelector('input[name="consent"]:checked').value,
-                    hand_washing: document.querySelector('input[name="handwash"]:checked').value,
-                    epp_use: document.querySelector('input[name="epp"]:checked').value,
-                    team_collaboration: document.querySelector('input[name="teamCollaboration"]:checked').value,
-                    // Bundle DESPUÉS
-                    complications: document.querySelector('input[name="complications"]:checked').value,
-                    biosecurity: document.querySelector('input[name="biosecurity"]:checked').value,
-                    catheter_preparation: document.querySelector('input[name="catheterPrep"]:checked').value,
-                    skin_preparation: document.querySelector('input[name="skinPrep"]:checked').value,
-                    sterile_drape: document.querySelector('input[name="sterileDrape"]:checked').value,
-                    standard_fixation: document.querySelector('input[name="standardFixation"]:checked').value,
-                    xray_taken: document.querySelector('input[name="xrayTaken"]:checked').value
-                },
-                compliance: compliance,
-                needs_attention: compliance < 100 || 
-                                document.querySelector('input[name="complications"]:checked').value === 'Si'
-            };
-            
-            } else {
-                // Inserción NO verificable - Solo datos básicos
-                var compliance = 0;
-                var auditData = {
+                let totalPoints = 0;
+                let maxPoints = 12;
+
+                if (document.querySelector('input[name="verify"]:checked').value === 'Si') totalPoints++;
+                if (document.querySelector('input[name="consent"]:checked').value === 'Si') totalPoints++;
+                if (document.querySelector('input[name="handwash"]:checked').value === 'Si') totalPoints++;
+                if (document.querySelector('input[name="epp"]:checked').value === 'Si') totalPoints++;
+                if (document.querySelector('input[name="teamCollaboration"]:checked').value === 'Si') totalPoints++;
+
+                if (document.querySelector('input[name="complications"]:checked').value === 'No') totalPoints++;
+                if (document.querySelector('input[name="biosecurity"]:checked').value === 'Si') totalPoints++;
+                if (document.querySelector('input[name="catheterPrep"]:checked').value === 'Si') totalPoints++;
+                if (document.querySelector('input[name="skinPrep"]:checked').value === 'Si') totalPoints++;
+                if (document.querySelector('input[name="sterileDrape"]:checked').value === 'Si') totalPoints++;
+                if (document.querySelector('input[name="standardFixation"]:checked').value === 'Si') totalPoints++;
+
+                const xrayValue = document.querySelector('input[name="xrayTaken"]:checked').value;
+                if (xrayValue === 'Si') {
+                    totalPoints++;
+                } else if (xrayValue === 'NA') {
+                    maxPoints--;
+                }
+
+                compliance = Math.round((totalPoints / maxPoints) * 100);
+
+                auditData = {
                     patient_doc: patientData.document,
-                    audit_type: "primera",
-                    auditor: document.getElementById("auditorFirst").value,
+                    audit_type: 'primera_vez',
+                    auditor: document.getElementById('auditorFirst').value.trim(),
+                    bed: document.getElementById('bedFirst').value,
+                    catheter_days: 0,
+                    bundle_data: {
+                        insertion_verifiable: 'Si',
+                        verify_indication: document.querySelector('input[name="verify"]:checked').value,
+                        informed_consent: document.querySelector('input[name="consent"]:checked').value,
+                        hand_washing: document.querySelector('input[name="handwash"]:checked').value,
+                        epp_use: document.querySelector('input[name="epp"]:checked').value,
+                        team_collaboration: document.querySelector('input[name="teamCollaboration"]:checked').value,
+                        complications: document.querySelector('input[name="complications"]:checked').value,
+                        biosecurity: document.querySelector('input[name="biosecurity"]:checked').value,
+                        catheter_preparation: document.querySelector('input[name="catheterPrep"]:checked').value,
+                        skin_preparation: document.querySelector('input[name="skinPrep"]:checked').value,
+                        sterile_drape: document.querySelector('input[name="sterileDrape"]:checked').value,
+                        standard_fixation: document.querySelector('input[name="standardFixation"]:checked').value,
+                        xray_taken: document.querySelector('input[name="xrayTaken"]:checked').value
+                    },
+                    compliance: compliance,
+                    needs_attention: compliance < 100 ||
+                                    document.querySelector('input[name="complications"]:checked').value === 'Si'
+                };
+            } else {
+                auditData = {
+                    patient_doc: patientData.document,
+                    audit_type: "primera_vez",
+                    auditor: document.getElementById("auditorFirst").value.trim(),
                     bed: document.getElementById("bedFirst").value,
                     catheter_days: 0,
                     bundle_data: {
                         insertion_verifiable: "No",
-                        note: "Inserción realizada en otro servicio - Bundle no verificable"
+                        note: "Insercion realizada en otro servicio - Bundle no verificable"
                     },
                     compliance: null,
                     needs_attention: false
                 };
             }
-            // Insertar auditoría
+
             const { error: auditError } = await supabase
                 .from('audits')
                 .insert(auditData);
-            
+
+            hideLoading();
+
             if (auditError) {
-                alert('Error al guardar auditoría: ' + auditError.message);
+                showToast('Error al guardar auditoria: ' + auditError.message, 'error');
                 return;
             }
-            
-            alert(`✅ Registro de PRIMERA VEZ guardado exitosamente\n\nCumplimiento del Bundle: ${compliance}%`);
+
+            if (isVerifiable) {
+                showToast('Registro de PRIMERA VEZ guardado. Cumplimiento: ' + compliance + '%', 'success');
+            } else {
+                showToast('Registro de PRIMERA VEZ guardado (insercion no verificable)', 'success');
+            }
+
             backToStart();
         }
 
@@ -1803,87 +2085,74 @@
         // ====================================
         async function saveFollowUp() {
             if (!currentPatient) {
-                alert('Error: No hay paciente seleccionado');
+                showToast('Error: No hay paciente seleccionado', 'error');
                 return;
             }
-            
-            // Validar campos
+
             if (!document.getElementById('bedFollow').value || !document.getElementById('auditorFollow').value) {
-                alert('Por favor complete todos los campos requeridos');
+                showToast('Por favor complete todos los campos requeridos', 'error');
                 return;
             }
-            
-            // Validar fecha de última curación
+
             if (!document.getElementById('lastDressingDate').value) {
-                alert('Por favor ingrese la fecha de la última curación');
+                showToast('Por favor ingrese la fecha de la ultima curacion', 'error');
                 return;
             }
-            
-            // Validar radio buttons del bundle de mantenimiento
-            const radioGroups = ['hygiene', 'hubDisinfection', 'continue', 'transparentDressing', 
+
+            const radioGroups = ['hygiene', 'hubDisinfection', 'continue', 'transparentDressing',
                                'insertionVisible', 'skinCondition', 'chgbath'];
-            for (let group of radioGroups) {
-                if (!document.querySelector(`input[name="${group}"]:checked`)) {
-                    alert('Por favor responda todas las preguntas del Bundle de Mantenimiento');
-                    return;
-                }
+            if (!validateRadioGroups(radioGroups, 'Por favor responda todas las preguntas del Bundle de Mantenimiento')) {
+                return;
             }
-            
-            // Verificar si requiere curación con el sistema inteligente
+
+            showLoading('Guardando seguimiento...');
+
             const curationCheck = checkCurationRequired();
-            
-            // Si se marcó que se hizo curación
+
             let curationPerformed = false;
             if (document.getElementById('curationDone') && document.getElementById('curationDone').checked) {
                 const curationBy = document.getElementById('curationBy').value;
-                
+
                 if (!curationBy) {
-                    alert('Por favor ingrese el nombre de quien realizó la curación');
+                    hideLoading();
+                    showToast('Por favor ingrese el nombre de quien realizo la curacion', 'error');
                     return;
                 }
-                
+
                 curationPerformed = true;
-                
-                // Actualizar en la tabla de pacientes
+
                 await supabase
                     .from('patients')
                     .update({
                         last_dressing_date: new Date().toISOString().split('T')[0],
-                        last_dressing_by: curationBy,
-                        dressing_notes: document.getElementById('curationNotes')?.value || ''
+                        last_dressing_by: curationBy
                     })
                     .eq('document', currentPatient.document);
-                    
-                // Insertar en historial de curaciones
+
                 await supabase
                     .from('dressing_history')
                     .insert({
                         patient_doc: currentPatient.document,
                         dressing_date: new Date().toISOString(),
                         performed_by: curationBy,
-                        reason: curationCheck.urgencyLevel === 'urgent' ? 'urgent' : 'scheduled',
-                        observations: document.getElementById('curationNotes')?.value || ''
+                        dressing_type: curationCheck.urgencyLevel === 'urgent' ? 'urgent' : 'scheduled',
+                        notes: document.getElementById('curationNotes') ? document.getElementById('curationNotes').value : ''
                     });
             }
-            
-            // Calcular días del catéter
-            const insertDate = new Date(currentPatient.insertion_date);
-            const today = new Date();
-            const days = Math.ceil((today - insertDate) / (1000 * 60 * 60 * 24));
-            
-            // Calcular cumplimiento con los nuevos campos
+
+            const days = daysBetween(currentPatient.insertion_date, new Date());
+
             let totalPoints = 0;
             let maxPoints = 8;
 
             const hygiene = document.querySelector('input[name="hygiene"]:checked').value;
-            const hubDisinfection = document.querySelector('input[name="hubDisinfection"]:checked')?.value || 'No';
+            const hubDisinfection = document.querySelector('input[name="hubDisinfection"]:checked').value;
             const continueIndication = document.querySelector('input[name="continue"]:checked').value;
             const transparentDressing = document.querySelector('input[name="transparentDressing"]:checked').value;
             const insertionVisible = document.querySelector('input[name="insertionVisible"]:checked').value;
             const skinCondition = document.querySelector('input[name="skinCondition"]:checked').value;
             const bath = document.querySelector('input[name="chgbath"]:checked').value;
 
-            // Calcular puntos con los valores actualizados
             if (hygiene === 'Siempre') totalPoints++;
             if (hubDisinfection === 'Si-15seg') totalPoints++;
             if (continueIndication === 'Si') totalPoints++;
@@ -1896,21 +2165,19 @@
             } else if (bath === 'Contraindicado') {
                 maxPoints--;
             }
-            
+
             const compliance = Math.round((totalPoints / maxPoints) * 100);
-            
-            // Determinar si necesita atención
-            const needsAttention = days > 7 || 
-                                  continueIndication === 'No' || 
+
+            const needsAttention = days > 7 ||
+                                  continueIndication === 'No' ||
                                   skinCondition !== 'Normal' ||
                                   insertionVisible === 'No' ||
                                   (curationCheck.required && !curationPerformed);
-            
-            // Datos de la auditoría
+
             const auditData = {
                 patient_doc: currentPatient.document,
                 audit_type: 'seguimiento',
-                auditor: document.getElementById('auditorFollow').value,
+                auditor: document.getElementById('auditorFollow').value.trim(),
                 bed: document.getElementById('bedFollow').value,
                 catheter_days: days,
                 bundle_data: {
@@ -1928,41 +2195,44 @@
                     curation_reasons: curationCheck.reasons.join(', '),
                     curation_performed: curationPerformed,
                     curation_by: curationPerformed ? document.getElementById('curationBy').value : null,
-                    curation_notes: curationPerformed ? document.getElementById('curationNotes')?.value : null,
                     observations: document.getElementById('observations').value
                 },
                 compliance: compliance,
-                needs_attention: needsAttention,
-                curation_required: curationCheck.required,
-                curation_performed: curationPerformed,
-                curation_urgency: curationCheck.urgencyLevel
+                needs_attention: needsAttention
             };
-            
-            // Insertar auditoría
+
+            await supabase
+                .from('patients')
+                .update({ bed: document.getElementById('bedFollow').value })
+                .eq('document', currentPatient.document);
+
             const { error } = await supabase
                 .from('audits')
                 .insert(auditData);
-            
+
+            hideLoading();
+
             if (error) {
-                alert('Error al guardar: ' + error.message);
+                showToast('Error al guardar: ' + error.message, 'error');
                 return;
             }
-            
-            // Mensaje según la situación
-            let message = `✅ Seguimiento guardado exitosamente\n\nCumplimiento: ${compliance}%\n`;
-            message += `Días con catéter: ${days}\n`;
-            
+
+            let message = 'Seguimiento guardado. Cumplimiento: ' + compliance + '%. Dias con cateter: ' + days;
+
             if (curationPerformed) {
-                message += '\n✅ CURACIÓN REALIZADA HOY';
+                message += '. CURACION REALIZADA HOY';
             } else if (curationCheck.required) {
-                message += '\n⚠️ CURACIÓN PENDIENTE';
+                showToast(message + '. CURACION PENDIENTE', 'warning');
+                backToStart();
+                return;
             }
-            
+
             if (needsAttention) {
-                message += '\n\n🚨 PACIENTE REQUIERE ATENCIÓN';
+                showToast(message + '. PACIENTE REQUIERE ATENCION', 'warning');
+            } else {
+                showToast(message, 'success');
             }
-            
-            alert(message);
+
             backToStart();
         }
 
@@ -1971,38 +2241,52 @@
         // ====================================
         async function saveRemoval() {
             if (!currentPatient) {
-                alert('Error: No hay paciente seleccionado');
+                showToast('Error: No hay paciente seleccionado', 'error');
                 return;
             }
-            
-            // Validar campos
-            if (!document.getElementById('removalDate').value || 
-                !document.getElementById('removalAuditor').value) {
-                alert('Por favor complete todos los campos requeridos');
+
+            const infoComplete = document.querySelector('input[name="removalInfoComplete"]:checked');
+            if (!infoComplete) {
+                showToast('Por favor indique si tiene informacion completa del retiro', 'error');
                 return;
             }
-            
-            // Validar radio buttons
-            const radioGroups = ['removalReason', 'cultureTaken', 'documented'];
-            for (let group of radioGroups) {
-                if (!document.querySelector(`input[name="${group}"]:checked`)) {
-                    alert('Por favor responda todas las preguntas');
+            const isSimplifiedMode = infoComplete.value === 'No';
+
+            if (!document.getElementById('removalDate').value) {
+                showToast('Por favor ingrese la fecha de retiro', 'error');
+                return;
+            }
+
+            if (!document.querySelector('input[name="removalReason"]:checked')) {
+                showToast('Por favor seleccione el motivo del retiro', 'error');
+                return;
+            }
+
+            if (!isSimplifiedMode) {
+                if (!document.getElementById('removalAuditor').value) {
+                    showToast('Por favor ingrese el nombre del profesional que retiro', 'error');
+                    return;
+                }
+                const radioGroups = ['cultureTaken', 'documented'];
+                if (!validateRadioGroups(radioGroups, 'Por favor responda todas las preguntas')) {
                     return;
                 }
             }
-            
+
+            showLoading('Registrando retiro...');
+
             const removalDate = new Date(document.getElementById('removalDate').value);
             const insertDate = new Date(currentPatient.insertion_date);
-            const totalDays = Math.ceil((removalDate - insertDate) / (1000 * 60 * 60 * 24));
-            
+            const totalDays = daysBetween(currentPatient.insertion_date, removalDate);
+
             if (totalDays < 0) {
-                alert('Error: La fecha de retiro no puede ser anterior a la fecha de inserción');
+                hideLoading();
+                showToast('Error: La fecha de retiro no puede ser anterior a la fecha de insercion', 'error');
                 return;
             }
-            
+
             const removalReason = document.querySelector('input[name="removalReason"]:checked').value;
-            
-            // Actualizar el paciente como catéter retirado
+
             const { error: patientError } = await supabase
                 .from('patients')
                 .update({
@@ -2011,75 +2295,90 @@
                     removal_reason: removalReason
                 })
                 .eq('document', currentPatient.document);
-            
+
             if (patientError) {
-                alert('Error al actualizar paciente: ' + patientError.message);
+                hideLoading();
+                showToast('Error al actualizar paciente: ' + patientError.message, 'error');
                 return;
             }
-            
-            // Crear registro de auditoría de retiro
+
             const auditData = {
                 patient_doc: currentPatient.document,
                 audit_type: 'retiro',
-                auditor: document.getElementById('removalAuditor').value,
-                bed: '',
+                auditor: isSimplifiedMode ? 'No presenciado' : document.getElementById('removalAuditor').value.trim(),
+                bed: currentPatient.bed || '',
                 catheter_days: totalDays,
                 bundle_data: {
+                    info_complete: infoComplete.value,
                     removal_reason: removalReason,
-                    culture_taken: document.querySelector('input[name="cultureTaken"]:checked').value,
-                    documented: document.querySelector('input[name="documented"]:checked').value,
+                    culture_taken: isSimplifiedMode ? 'No registrado' : document.querySelector('input[name="cultureTaken"]:checked').value,
+                    documented: isSimplifiedMode ? 'No registrado' : document.querySelector('input[name="documented"]:checked').value,
                     removal_observations: document.getElementById('removalObservations').value,
                     removal_date: document.getElementById('removalDate').value,
                     total_catheter_days: totalDays
                 },
-                compliance: 100,
-                needs_attention: removalReason.includes('infección') || removalReason.includes('CLABSI')
+                compliance: isSimplifiedMode ? null : 100,
+                needs_attention: removalReason.includes('infeccion') || removalReason.includes('CLABSI')
             };
-            
+
             const { error: auditError } = await supabase
                 .from('audits')
                 .insert(auditData);
-            
+
+            hideLoading();
+
             if (auditError) {
-                alert('Error al guardar auditoría: ' + auditError.message);
+                showToast('Error al guardar auditoria: ' + auditError.message, 'error');
                 return;
             }
-            
-            // Mensaje de confirmación
-            let message = `✅ RETIRO DE CATÉTER REGISTRADO\n\n`;
-            message += `Paciente: ${currentPatient.name}\n`;
-            message += `Duración total: ${totalDays} días\n`;
-            message += `Motivo: ${removalReason}\n`;
-            
+
+            let message = 'RETIRO REGISTRADO. Paciente: ' + sanitizeHTML(currentPatient.name) + '. Duracion: ' + totalDays + ' dias. Motivo: ' + removalReason;
+
             if (removalReason.includes('CLABSI')) {
-                message += '\n🚨 CASO CLABSI CONFIRMADO - Notificar a epidemiología';
+                showToast(message + '. CASO CLABSI - Notificar a epidemiologia', 'error');
             } else if (totalDays > 7) {
-                message += '\n⚠️ Catéter de larga duración retirado';
+                showToast(message + '. Cateter de larga duracion retirado', 'warning');
+            } else {
+                showToast(message, 'success');
             }
-            
-            alert(message);
+
             backToStart();
         }
 
         // ====================================
-        // INICIALIZACIÓN
+        // INICIALIZACION
         // ====================================
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('Sistema CLABSI Completo iniciado');
+            console.log('Sistema CLABSI Colsubsidio iniciado');
             loadStats();
-            
-            // Permitir Enter en búsqueda
+            checkConnection();
+
+            window.addEventListener('online', checkConnection);
+            window.addEventListener('offline', checkConnection);
+
             document.getElementById('searchDoc').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     searchPatient();
                 }
             });
-            
-            // Establecer fecha máxima para campos de fecha (no futuras)
+
             const dateInputs = document.querySelectorAll('input[type="date"]');
             const today = new Date().toISOString().split('T')[0];
-            dateInputs.forEach(input => {
+            dateInputs.forEach(function(input) {
                 input.setAttribute('max', today);
+            });
+
+            document.querySelectorAll('.radio-option').forEach(function(option) {
+                option.addEventListener('click', function() {
+                    const radio = this.querySelector('input[type="radio"]');
+                    if (radio) {
+                        const name = radio.getAttribute('name');
+                        document.querySelectorAll('input[name="' + name + '"]').forEach(function(r) {
+                            r.closest('.radio-option').classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                    }
+                });
             });
         });
     </script>
