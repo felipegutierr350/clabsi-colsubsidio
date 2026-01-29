@@ -298,7 +298,38 @@
             color: var(--amarillo);
             box-shadow: 0 8px 25px rgba(0, 31, 92, 0.4);
         }
-        .dashboard-btn .icon { font-size: 28px; }
+        .dashboard-btn .icon { font-size: 24px; }
+
+        .dashboard-buttons-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .dashboard-buttons-grid .dashboard-btn {
+            padding: 14px 10px;
+            font-size: 13px;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .dashboard-btn-cvc {
+            background: linear-gradient(135deg, var(--cvc-color) 0%, #1D4ED8 100%) !important;
+            border-color: var(--cvc-color) !important;
+            color: white !important;
+        }
+        .dashboard-btn-sonda {
+            background: linear-gradient(135deg, var(--sonda-color) 0%, #059669 100%) !important;
+            border-color: var(--sonda-color) !important;
+            color: white !important;
+        }
+        .dashboard-btn-vm {
+            background: linear-gradient(135deg, var(--vm-color) 0%, #D97706 100%) !important;
+            border-color: var(--vm-color) !important;
+            color: white !important;
+        }
+        .dashboard-btn-cvc:hover { background: linear-gradient(135deg, #1D4ED8 0%, #1e3a8a 100%) !important; }
+        .dashboard-btn-sonda:hover { background: linear-gradient(135deg, #059669 0%, #047857 100%) !important; }
+        .dashboard-btn-vm:hover { background: linear-gradient(135deg, #D97706 0%, #b45309 100%) !important; }
 
         .dashboard-container {
             background: linear-gradient(135deg, var(--azul-oscuro) 0%, var(--azul) 100%);
@@ -455,12 +486,136 @@
         .section-separator { border-top: 3px dashed var(--gris); margin: 25px 0; position: relative; }
         .section-separator::after { content: attr(data-label); position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: var(--blanco); padding: 0 12px; color: #666; font-size: 12px; font-weight: bold; }
 
+        /* RESPONSIVE DESIGN - TABLET */
         @media (max-width: 768px) {
-            .header { flex-direction: column; text-align: center; }
-            .choice-buttons, .stats-grid { grid-template-columns: 1fr 1fr; }
-            .triple-days-container { grid-template-columns: 1fr; }
+            body { padding: 10px; }
+            .container { border-radius: 12px; }
+            .header { flex-direction: column; text-align: center; padding: 20px 15px; gap: 15px; }
+            .header-text h1 { font-size: 18px; }
+            .header-text p { font-size: 12px; }
+            .content { padding: 15px; }
+
+            .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .stat-card { padding: 10px 5px; }
+            .stat-number { font-size: 20px; }
+            .stat-label { font-size: 10px; }
+
+            .choice-buttons { grid-template-columns: 1fr; gap: 12px; }
+            .choice-btn { padding: 20px 15px; }
+            .choice-icon { font-size: 28px; }
+
+            .triple-days-container { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .days-card .days-number { font-size: 22px; }
+
             .checkbox-group { flex-direction: column; }
-            .btn { width: 100%; justify-content: center; }
+            .checkbox-option { min-width: auto; }
+
+            .btn { width: 100%; justify-content: center; padding: 14px 20px; }
+            .btn-group { flex-direction: column; }
+
+            .dashboard-container { padding: 15px; border-radius: 12px; }
+            .beds-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .bed-card { padding: 12px 8px; }
+            .bed-patient-name { font-size: 11px; }
+            .bed-device { padding: 3px 6px; font-size: 9px; }
+            .bed-device .days { font-size: 12px; }
+
+            .bundle-content { padding: 15px; }
+            .form-group { margin-bottom: 15px; }
+            .radio-option { padding: 12px 10px; font-size: 13px; }
+        }
+
+        /* RESPONSIVE DESIGN - MOBILE SMALL */
+        @media (max-width: 480px) {
+            body { padding: 5px; }
+            .header { padding: 15px 10px; }
+            .header-logo { padding: 5px 8px; }
+            .header-logo img { height: 40px; }
+            .header-text h1 { font-size: 16px; }
+            .header-text p { font-size: 11px; }
+            .content { padding: 10px; }
+
+            .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 5px; }
+            .stat-card { padding: 8px 3px; border-radius: 8px; }
+            .stat-number { font-size: 18px; }
+            .stat-label { font-size: 9px; }
+
+            .section-title { font-size: 16px; }
+            .choice-buttons { gap: 10px; }
+            .choice-btn { padding: 18px 12px; font-size: 14px; }
+            .choice-icon { font-size: 24px; margin-bottom: 5px; }
+
+            .triple-days-container { grid-template-columns: repeat(3, 1fr); gap: 5px; }
+            .days-card { padding: 8px 5px; }
+            .days-card .days-number { font-size: 20px; }
+            .days-card .days-label { font-size: 9px; }
+
+            .bundle-header { padding: 12px 15px; font-size: 14px; }
+            .bundle-content { padding: 12px; }
+            .form-group label { font-size: 13px; }
+            input, select, textarea { padding: 10px; font-size: 14px; }
+            .radio-option { padding: 10px 8px; font-size: 12px; }
+            .radio-option input { width: 16px; height: 16px; margin-right: 8px; }
+            .badge { width: 20px; height: 20px; font-size: 10px; }
+
+            .dashboard-container { padding: 12px; margin-bottom: 15px; }
+            .dashboard-title { font-size: 16px; }
+            .dashboard-subtitle { font-size: 11px; }
+            .beds-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .bed-card { padding: 10px 6px; min-height: 90px; }
+            .bed-number { width: 28px; height: 28px; font-size: 12px; top: -10px; }
+            .bed-patient { margin-top: 12px; }
+            .bed-patient-name { font-size: 10px; }
+            .bed-devices { gap: 4px; margin-top: 8px; }
+            .bed-device { padding: 2px 5px; font-size: 8px; min-width: 45px; }
+            .bed-device .days { font-size: 11px; }
+            .bed-alert { font-size: 8px; padding: 3px 5px; margin-top: 6px; }
+            .bed-empty-text { font-size: 10px; margin-top: 15px; }
+            .dashboard-legend { gap: 12px; margin-top: 15px; }
+            .legend-item { font-size: 10px; }
+            .legend-dot { width: 10px; height: 10px; }
+            .close-dashboard { width: 32px; height: 32px; font-size: 18px; top: 10px; right: 10px; }
+
+            .patient-info-card { padding: 12px; }
+            .patient-info-card h3 { font-size: 14px; }
+            .device-badge { padding: 3px 8px; font-size: 10px; }
+
+            .form-highlight { padding: 12px; }
+            .section-separator { margin: 20px 0; }
+
+            .btn { padding: 12px 15px; font-size: 14px; }
+            .toast { padding: 10px 15px; min-width: 250px; font-size: 13px; }
+            .connection-indicator { padding: 5px 10px; font-size: 10px; }
+        }
+
+        /* Dashboard buttons responsive */
+        @media (max-width: 600px) {
+            .dashboard-buttons-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .dashboard-buttons-grid .dashboard-btn {
+                padding: 12px 8px;
+                font-size: 12px;
+            }
+            .dashboard-buttons-grid .dashboard-btn .icon {
+                font-size: 20px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .dashboard-buttons-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 6px;
+            }
+            .dashboard-buttons-grid .dashboard-btn {
+                padding: 10px 5px;
+                font-size: 11px;
+            }
+            .beds-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+            .stat-number { font-size: 16px; }
+            .triple-days-container { gap: 4px; }
         }
     </style>
 </head>
@@ -490,17 +645,17 @@
 
         <div class="content">
             <!-- Botones Dashboard -->
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
-                <button class="dashboard-btn" onclick="toggleDashboard('all')" style="padding:12px;font-size:14px;">
+            <div class="dashboard-buttons-grid">
+                <button class="dashboard-btn dashboard-btn-all" onclick="toggleDashboard('all')">
                     <span class="icon">🏥</span> TODAS
                 </button>
-                <button class="dashboard-btn" onclick="toggleDashboard('cvc')" style="padding:12px;font-size:14px;background:linear-gradient(135deg,var(--cvc-color) 0%,#1D4ED8 100%);border-color:var(--cvc-color);color:white;">
+                <button class="dashboard-btn dashboard-btn-cvc" onclick="toggleDashboard('cvc')">
                     <span class="icon">💉</span> CVC
                 </button>
-                <button class="dashboard-btn" onclick="toggleDashboard('sonda')" style="padding:12px;font-size:14px;background:linear-gradient(135deg,var(--sonda-color) 0%,#059669 100%);border-color:var(--sonda-color);color:white;">
+                <button class="dashboard-btn dashboard-btn-sonda" onclick="toggleDashboard('sonda')">
                     <span class="icon">🔗</span> SONDA
                 </button>
-                <button class="dashboard-btn" onclick="toggleDashboard('vm')" style="padding:12px;font-size:14px;background:linear-gradient(135deg,var(--vm-color) 0%,#D97706 100%);border-color:var(--vm-color);color:white;">
+                <button class="dashboard-btn dashboard-btn-vm" onclick="toggleDashboard('vm')">
                     <span class="icon">🫁</span> VM
                 </button>
             </div>
