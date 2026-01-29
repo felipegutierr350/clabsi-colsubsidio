@@ -489,17 +489,27 @@
         </div>
 
         <div class="content">
-            <!-- Boton Dashboard -->
-            <button class="dashboard-btn" onclick="toggleDashboard()">
-                <span class="icon">📊</span>
-                DASHBOARD UCI - Vista de Camas
-            </button>
+            <!-- Botones Dashboard -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+                <button class="dashboard-btn" onclick="toggleDashboard('all')" style="padding:12px;font-size:14px;">
+                    <span class="icon">🏥</span> TODAS
+                </button>
+                <button class="dashboard-btn" onclick="toggleDashboard('cvc')" style="padding:12px;font-size:14px;background:linear-gradient(135deg,var(--cvc-color) 0%,#1D4ED8 100%);border-color:var(--cvc-color);color:white;">
+                    <span class="icon">💉</span> CVC
+                </button>
+                <button class="dashboard-btn" onclick="toggleDashboard('sonda')" style="padding:12px;font-size:14px;background:linear-gradient(135deg,var(--sonda-color) 0%,#059669 100%);border-color:var(--sonda-color);color:white;">
+                    <span class="icon">🔗</span> SONDA
+                </button>
+                <button class="dashboard-btn" onclick="toggleDashboard('vm')" style="padding:12px;font-size:14px;background:linear-gradient(135deg,var(--vm-color) 0%,#D97706 100%);border-color:var(--vm-color);color:white;">
+                    <span class="icon">🫁</span> VM
+                </button>
+            </div>
 
             <!-- Dashboard Container -->
             <div id="dashboardContainer" class="dashboard-container hidden">
-                <button class="close-dashboard" onclick="toggleDashboard()">✕</button>
-                <button class="btn btn-back" onclick="toggleDashboard()" style="margin-bottom:15px;background:var(--amarillo);color:var(--azul-oscuro);font-weight:bold;">← Volver</button>
-                <div class="dashboard-title">
+                <button class="close-dashboard" onclick="toggleDashboard('close')">✕</button>
+                <button class="btn btn-back" onclick="toggleDashboard('close')" style="margin-bottom:15px;background:var(--amarillo);color:var(--azul-oscuro);font-weight:bold;">← Volver</button>
+                <div class="dashboard-title" id="dashboardTitle">
                     <span>🏥</span> UCI Pediatrica - Estado Actual
                 </div>
                 <div class="dashboard-subtitle">Ultima actualizacion: <span id="dashboardTime">--</span></div>
@@ -838,22 +848,56 @@
                                 <label><span class="badge">3</span> Indicacion CVC vigente?</label>
                                 <div class="radio-group">
                                     <label class="radio-option success"><input type="radio" name="cvcContinue" value="Si"><span>Si - Mantener</span></label>
-                                    <label class="radio-option danger"><input type="radio" name="cvcContinue" value="No"><span>No - Retirar</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcContinue" value="No"><span>No - RETIRAR</span></label>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label><span class="badge">4</span> Aposito integro?</label>
+                                <label><span class="badge">4</span> Tipo de aposito</label>
                                 <div class="radio-group">
-                                    <label class="radio-option success"><input type="radio" name="cvcAposito" value="Optimo"><span>Optimo</span></label>
-                                    <label class="radio-option danger"><input type="radio" name="cvcAposito" value="Cambiar"><span>Cambiar</span></label>
+                                    <label class="radio-option success"><input type="radio" name="cvcTipoAposito" value="TRANSPARENTE" onchange="checkDressingAlert()"><span>Transparente (cambio c/7 dias)</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="cvcTipoAposito" value="GASA" onchange="checkDressingAlert()"><span>Gasa (cambio c/48h)</span></label>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label><span class="badge">5</span> Sitio insercion</label>
+                                <label><span class="badge">5</span> Estado del aposito</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="cvcAposito" value="Optimo" onchange="checkDressingAlert()"><span>Optimo - integro</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="cvcAposito" value="Despegado" onchange="checkDressingAlert()"><span>Parcialmente despegado >25%</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcAposito" value="Humedo" onchange="checkDressingAlert()"><span>Humedo/sucio/sangre</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label><span class="badge">6</span> Punto de insercion visible?</label>
+                                <div class="radio-group">
+                                    <label class="radio-option success"><input type="radio" name="cvcVisible" value="Si" onchange="checkDressingAlert()"><span>Si - completamente visible</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="cvcVisible" value="Parcial" onchange="checkDressingAlert()"><span>Parcialmente visible</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcVisible" value="No" onchange="checkDressingAlert()"><span>NO visible - requiere curacion</span></label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label><span class="badge">7</span> Sitio insercion</label>
                                 <div class="radio-group">
                                     <label class="radio-option success"><input type="radio" name="cvcSitio" value="Normal"><span>Normal</span></label>
-                                    <label class="radio-option warning"><input type="radio" name="cvcSitio" value="Eritema"><span>Eritema</span></label>
-                                    <label class="radio-option danger"><input type="radio" name="cvcSitio" value="Infeccion"><span>Signos infeccion</span></label>
+                                    <label class="radio-option warning"><input type="radio" name="cvcSitio" value="Eritema"><span>Eritema <2cm</span></label>
+                                    <label class="radio-option danger"><input type="radio" name="cvcSitio" value="Infeccion"><span>Signos infeccion (pus, >2cm)</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Sistema de Curacion -->
+                            <div class="form-highlight" style="margin-top:20px;">
+                                <label style="font-weight:bold;">Fecha ultima curacion</label>
+                                <input type="date" id="lastDressingDate" onchange="checkDressingAlert()" style="margin-top:8px;">
+                                <div id="dressingDaysInfo" style="margin-top:10px;font-size:13px;"></div>
+                            </div>
+
+                            <!-- Alerta de Curacion -->
+                            <div id="curationAlert" class="hidden" style="margin-top:15px;padding:15px;border-radius:10px;"></div>
+
+                            <!-- Confirmacion de Curacion Realizada -->
+                            <div id="curationConfirm" class="hidden" style="margin-top:15px;padding:15px;background:rgba(40,167,69,0.1);border:2px solid var(--success);border-radius:10px;">
+                                <label><input type="checkbox" id="curationDone" onchange="toggleCurationBy()"> Curacion realizada HOY</label>
+                                <div id="curationByDiv" class="hidden" style="margin-top:10px;">
+                                    <input type="text" id="curationBy" placeholder="Nombre de quien realizo la curacion">
                                 </div>
                             </div>
                         </div>
@@ -1082,20 +1126,37 @@
 
         let currentCVC = null, currentSonda = null, currentVM = null;
         let dashboardOpen = false;
+        let currentDashboardType = 'all';
 
         // DASHBOARD FUNCTIONS
-        async function toggleDashboard() {
-            dashboardOpen = !dashboardOpen;
-            const container = document.getElementById('dashboardContainer');
-            if (dashboardOpen) {
-                container.classList.remove('hidden');
-                await loadDashboard();
-            } else {
-                container.classList.add('hidden');
+        async function toggleDashboard(type) {
+            if (type === 'close') {
+                dashboardOpen = false;
+                document.getElementById('dashboardContainer').classList.add('hidden');
+                return;
             }
+
+            currentDashboardType = type || 'all';
+            dashboardOpen = true;
+            document.getElementById('dashboardContainer').classList.remove('hidden');
+
+            // Update title based on type
+            const titles = {
+                'all': '<span>🏥</span> UCI Pediatrica - Todos los Dispositivos',
+                'cvc': '<span>💉</span> Dashboard CVC - Catéteres Centrales',
+                'sonda': '<span>🔗</span> Dashboard Sonda Vesical',
+                'vm': '<span>🫁</span> Dashboard Ventilación Mecánica'
+            };
+            document.getElementById('dashboardTitle').innerHTML = titles[type] || titles['all'];
+
+            // Update container border color
+            const colors = { 'all': 'var(--amarillo)', 'cvc': 'var(--cvc-color)', 'sonda': 'var(--sonda-color)', 'vm': 'var(--vm-color)' };
+            document.getElementById('dashboardContainer').style.borderColor = colors[type] || colors['all'];
+
+            await loadDashboard(type);
         }
 
-        async function loadDashboard() {
+        async function loadDashboard(type = 'all') {
             const grid = document.getElementById('bedsGrid');
             grid.innerHTML = '<div style="color:white;text-align:center;grid-column:1/-1;">Cargando...</div>';
 
@@ -1104,12 +1165,6 @@
                 const { data: cvcPatients } = await supabase.from('patients').select('*').eq('catheter_removed', false);
                 const { data: sondaPatients } = await supabase.from('sonda_patients').select('*').eq('sonda_removed', false);
                 const { data: vmPatients } = await supabase.from('vm_patients').select('*').eq('vm_removed', false);
-
-                // Get recent audits for alerts
-                const today = new Date().toISOString().split('T')[0];
-                const { data: cvcAudits } = await supabase.from('audits').select('*').eq('needs_attention', true).gte('created_at', today);
-                const { data: sondaAudits } = await supabase.from('sonda_audits').select('*').eq('needs_attention', true).gte('created_at', today);
-                const { data: vmAudits } = await supabase.from('vm_audits').select('*').eq('needs_attention', true).gte('created_at', today);
 
                 // Create bed map (1-13)
                 const beds = {};
@@ -1122,7 +1177,19 @@
                         beds[bed].cvc = p;
                         beds[bed].patients.push(p);
                         const days = daysBetween(p.insertion_date, new Date());
-                        if (days > 7) beds[bed].alerts.push('CVC >' + days + 'd');
+                        // CVC Alerts
+                        if (days > 14) beds[bed].alerts.push('CVC ' + days + 'd - REVISAR RETIRO');
+                        else if (days > 7) beds[bed].alerts.push('CVC ' + days + 'd');
+                        // Dressing alerts
+                        if (p.last_dressing_date) {
+                            const dressingDays = daysBetween(p.last_dressing_date, new Date());
+                            if (dressingDays >= 7) beds[bed].alerts.push('CURACION HOY (dia ' + dressingDays + ')');
+                            else if (dressingDays === 6) beds[bed].alerts.push('Curacion MAÑANA');
+                        }
+                        if (p.dressing_type === 'GASA') {
+                            const dressingDays = p.last_dressing_date ? daysBetween(p.last_dressing_date, new Date()) : 99;
+                            if (dressingDays >= 2) beds[bed].alerts.push('GASA >48h - CAMBIAR');
+                        }
                     }
                 });
 
@@ -1133,7 +1200,8 @@
                         beds[bed].sonda = p;
                         if (!beds[bed].patients.find(x => x.document === p.document)) beds[bed].patients.push(p);
                         const days = daysBetween(p.insertion_date, new Date());
-                        if (days > 5) beds[bed].alerts.push('Sonda >' + days + 'd');
+                        if (days > 5) beds[bed].alerts.push('Sonda ' + days + 'd - EVALUAR');
+                        if (days > 3) beds[bed].alerts.push('Sonda >3d');
                     }
                 });
 
@@ -1144,71 +1212,81 @@
                         beds[bed].vm = p;
                         if (!beds[bed].patients.find(x => x.document === p.document)) beds[bed].patients.push(p);
                         const days = daysBetween(p.insertion_date, new Date());
-                        if (days > 5) beds[bed].alerts.push('VM >' + days + 'd');
+                        if (days > 7) beds[bed].alerts.push('VM ' + days + 'd - EVALUAR EXTUBACION');
+                        else if (days > 5) beds[bed].alerts.push('VM ' + days + 'd');
                     }
                 });
 
-                // Check audits for alerts
-                (cvcAudits || []).forEach(a => {
-                    const p = (cvcPatients || []).find(x => x.document === a.patient_doc);
-                    if (p && p.bed) {
-                        const bed = parseInt(p.bed);
-                        if (!beds[bed].alerts.includes('Revisar CVC')) beds[bed].alerts.push('Revisar CVC');
-                    }
-                });
-                (sondaAudits || []).forEach(a => {
-                    const p = (sondaPatients || []).find(x => x.document === a.patient_doc);
-                    if (p && p.bed) {
-                        const bed = parseInt(p.bed);
-                        if (!beds[bed].alerts.includes('Revisar Sonda')) beds[bed].alerts.push('Revisar Sonda');
-                    }
-                });
-                (vmAudits || []).forEach(a => {
-                    const p = (vmPatients || []).find(x => x.document === a.patient_doc);
-                    if (p && p.bed) {
-                        const bed = parseInt(p.bed);
-                        if (!beds[bed].alerts.includes('Revisar VM')) beds[bed].alerts.push('Revisar VM');
-                    }
-                });
-
-                // Render beds
+                // Render beds based on type
                 let html = '';
                 for (let i = 1; i <= 13; i++) {
                     const bed = beds[i];
-                    const hasDevices = bed.cvc || bed.sonda || bed.vm;
-                    const hasAlert = bed.alerts.length > 0;
+                    let showBed = false;
+                    let hasDevice = false;
+
+                    if (type === 'all') {
+                        showBed = true;
+                        hasDevice = bed.cvc || bed.sonda || bed.vm;
+                    } else if (type === 'cvc') {
+                        showBed = true;
+                        hasDevice = bed.cvc;
+                    } else if (type === 'sonda') {
+                        showBed = true;
+                        hasDevice = bed.sonda;
+                    } else if (type === 'vm') {
+                        showBed = true;
+                        hasDevice = bed.vm;
+                    }
+
+                    if (!showBed) continue;
+
+                    // Filter alerts by type
+                    let filteredAlerts = bed.alerts;
+                    if (type === 'cvc') filteredAlerts = bed.alerts.filter(a => a.includes('CVC') || a.includes('CURACION') || a.includes('GASA'));
+                    if (type === 'sonda') filteredAlerts = bed.alerts.filter(a => a.includes('Sonda'));
+                    if (type === 'vm') filteredAlerts = bed.alerts.filter(a => a.includes('VM') || a.includes('EXTUBACION'));
+
+                    const hasAlert = filteredAlerts.length > 0;
                     const patientName = bed.patients[0]?.name || '';
 
-                    html += '<div class="bed-card ' + (!hasDevices ? 'empty' : '') + (hasAlert ? ' has-alert' : '') + '">';
+                    html += '<div class="bed-card ' + (!hasDevice ? 'empty' : '') + (hasAlert && hasDevice ? ' has-alert' : '') + '">';
                     html += '<div class="bed-number">' + i + '</div>';
 
-                    if (hasDevices) {
+                    if (hasDevice) {
                         html += '<div class="bed-patient">';
                         html += '<div class="bed-patient-name">' + sanitize(patientName.split(' ').slice(0,2).join(' ')) + '</div>';
                         html += '<div class="bed-devices">';
 
-                        if (bed.cvc) {
+                        if ((type === 'all' || type === 'cvc') && bed.cvc) {
                             const days = daysBetween(bed.cvc.insertion_date, new Date());
-                            html += '<div class="bed-device cvc"><span class="days">' + days + '</span>CVC</div>';
+                            const dressingDays = bed.cvc.last_dressing_date ? daysBetween(bed.cvc.last_dressing_date, new Date()) : '?';
+                            html += '<div class="bed-device cvc" style="min-width:60px;">';
+                            html += '<span class="days">' + days + '</span>CVC';
+                            html += '<small style="font-size:8px;opacity:0.8;">Cur:' + dressingDays + 'd</small>';
+                            html += '</div>';
                         }
-                        if (bed.sonda) {
+                        if ((type === 'all' || type === 'sonda') && bed.sonda) {
                             const days = daysBetween(bed.sonda.insertion_date, new Date());
                             html += '<div class="bed-device sonda"><span class="days">' + days + '</span>SV</div>';
                         }
-                        if (bed.vm) {
+                        if ((type === 'all' || type === 'vm') && bed.vm) {
                             const days = daysBetween(bed.vm.insertion_date, new Date());
                             html += '<div class="bed-device vm"><span class="days">' + days + '</span>VM</div>';
                         }
 
                         html += '</div>';
 
-                        if (hasAlert) {
-                            html += '<div class="bed-alert">⚠️ ' + bed.alerts[0] + '</div>';
+                        // Show all relevant alerts
+                        if (filteredAlerts.length > 0) {
+                            html += '<div class="bed-alert" style="font-size:9px;">';
+                            html += filteredAlerts.slice(0,2).map(a => '⚠️ ' + a).join('<br>');
+                            html += '</div>';
                         }
 
                         html += '</div>';
                     } else {
-                        html += '<div class="bed-empty-text">Libre</div>';
+                        const emptyText = type === 'all' ? 'Sin dispositivos' : 'Sin ' + type.toUpperCase();
+                        html += '<div class="bed-empty-text">' + emptyText + '</div>';
                     }
 
                     html += '</div>';
@@ -1224,6 +1302,94 @@
         }
 
         function sanitize(s) { return s ? String(s).replace(/[<>&"']/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c])) : ''; }
+
+        // SISTEMA DE CURACION CVC
+        function checkDressingAlert() {
+            const tipoAposito = document.querySelector('input[name="cvcTipoAposito"]:checked')?.value;
+            const estadoAposito = document.querySelector('input[name="cvcAposito"]:checked')?.value;
+            const visible = document.querySelector('input[name="cvcVisible"]:checked')?.value;
+            const lastDate = document.getElementById('lastDressingDate')?.value;
+            const alertDiv = document.getElementById('curationAlert');
+            const infoDiv = document.getElementById('dressingDaysInfo');
+            const confirmDiv = document.getElementById('curationConfirm');
+
+            let daysSince = 0;
+            let urgentReasons = [];
+            let needsCuration = false;
+
+            // Calculate days since last dressing
+            if (lastDate) {
+                daysSince = daysBetween(lastDate, new Date());
+                const maxDays = tipoAposito === 'GASA' ? 2 : 7;
+                const nextDate = new Date(lastDate);
+                nextDate.setDate(nextDate.getDate() + maxDays);
+
+                infoDiv.innerHTML = '<strong>Dias desde curacion:</strong> ' + daysSince + ' de ' + maxDays +
+                    '<br><small>Proxima: ' + nextDate.toLocaleDateString('es-CO') + '</small>';
+            } else {
+                infoDiv.innerHTML = '<span style="color:#666;">Ingrese fecha de ultima curacion</span>';
+            }
+
+            // Check urgent conditions
+            if (estadoAposito === 'Humedo') {
+                urgentReasons.push('Aposito humedo/sucio - cambio INMEDIATO');
+                needsCuration = true;
+            }
+            if (estadoAposito === 'Despegado') {
+                urgentReasons.push('Aposito despegado >25% - requiere cambio');
+                needsCuration = true;
+            }
+            if (visible === 'No') {
+                urgentReasons.push('Punto insercion NO visible - curacion urgente');
+                needsCuration = true;
+            }
+            if (visible === 'Parcial') {
+                urgentReasons.push('Punto parcialmente visible - evaluar curacion');
+            }
+
+            // Check scheduled curation
+            if (tipoAposito === 'GASA' && daysSince >= 2) {
+                urgentReasons.push('GASA: han pasado ' + daysSince + ' dias (protocolo: 48h)');
+                needsCuration = true;
+            } else if (tipoAposito === 'TRANSPARENTE' && daysSince >= 7) {
+                urgentReasons.push('TRANSPARENTE: han pasado ' + daysSince + ' dias (protocolo: 7 dias)');
+                needsCuration = true;
+            }
+
+            // Show alert
+            if (urgentReasons.length > 0) {
+                alertDiv.classList.remove('hidden');
+                confirmDiv.classList.remove('hidden');
+
+                if (needsCuration) {
+                    alertDiv.style.background = 'rgba(220,53,69,0.15)';
+                    alertDiv.style.border = '2px solid var(--error)';
+                    alertDiv.innerHTML = '<h4 style="color:var(--error);margin-bottom:10px;">⚠️ CURACION REQUERIDA</h4>' +
+                        '<ul style="margin:0;padding-left:20px;">' + urgentReasons.map(r => '<li>' + r + '</li>').join('') + '</ul>';
+                } else {
+                    alertDiv.style.background = 'rgba(253,185,19,0.15)';
+                    alertDiv.style.border = '2px solid var(--amarillo)';
+                    alertDiv.innerHTML = '<h4 style="color:#856404;margin-bottom:10px;">⚡ EVALUAR CURACION</h4>' +
+                        '<ul style="margin:0;padding-left:20px;">' + urgentReasons.map(r => '<li>' + r + '</li>').join('') + '</ul>';
+                }
+            } else if (lastDate && daysSince < (tipoAposito === 'GASA' ? 2 : 7)) {
+                const remaining = (tipoAposito === 'GASA' ? 2 : 7) - daysSince;
+                alertDiv.classList.remove('hidden');
+                alertDiv.style.background = 'rgba(40,167,69,0.15)';
+                alertDiv.style.border = '2px solid var(--success)';
+                alertDiv.innerHTML = '<h4 style="color:var(--success);margin-bottom:10px;">✓ NO REQUIERE CURACION HOY</h4>' +
+                    '<p>Dia ' + daysSince + ' de ' + (tipoAposito === 'GASA' ? '2' : '7') + '. Proxima curacion en <strong>' + remaining + ' dia(s)</strong></p>';
+                confirmDiv.classList.add('hidden');
+            } else {
+                alertDiv.classList.add('hidden');
+                confirmDiv.classList.add('hidden');
+            }
+        }
+
+        function toggleCurationBy() {
+            const done = document.getElementById('curationDone').checked;
+            document.getElementById('curationByDiv').classList.toggle('hidden', !done);
+        }
         function daysBetween(d1, d2) { return Math.ceil((new Date(d2) - new Date(d1)) / 86400000); }
         function formatDate(d) { return d ? new Date(d).toLocaleDateString('es-CO') : '-'; }
         function showLoading(m='Cargando...') { document.getElementById('loadingText').textContent = m; document.getElementById('loadingOverlay').classList.remove('hidden'); }
@@ -1303,20 +1469,40 @@
             let html = '<h3>' + sanitize(p.name) + '</h3><div>Doc: ' + sanitize(p.document) + '</div><div class="device-badges">';
             let days = '<div class="triple-days-container">';
             if (currentCVC) {
+                const cvcDays = daysBetween(currentCVC.insertion_date, new Date());
+                const dressingDays = currentCVC.last_dressing_date ? daysBetween(currentCVC.last_dressing_date, new Date()) : '?';
                 html += '<span class="device-badge cvc">CVC: ' + currentCVC.access_type + '</span>';
-                days += '<div class="days-card cvc"><div class="days-number">' + daysBetween(currentCVC.insertion_date, new Date()) + '</div><div class="days-label">Dias CVC</div></div>';
+                days += '<div class="days-card cvc"><div class="days-number">' + cvcDays + '</div><div class="days-label">Dias CVC</div>';
+                days += '<div style="font-size:11px;margin-top:5px;">Curacion: ' + dressingDays + 'd</div></div>';
                 document.getElementById('cvcFollowSection').classList.remove('hidden');
+
+                // Load last dressing date
+                if (currentCVC.last_dressing_date) {
+                    document.getElementById('lastDressingDate').value = currentCVC.last_dressing_date;
+                }
+                // Set dressing type if stored
+                if (currentCVC.dressing_type === 'GASA') {
+                    const gasaRadio = document.querySelector('input[name="cvcTipoAposito"][value="GASA"]');
+                    if (gasaRadio) gasaRadio.checked = true;
+                } else {
+                    const transpRadio = document.querySelector('input[name="cvcTipoAposito"][value="TRANSPARENTE"]');
+                    if (transpRadio) transpRadio.checked = true;
+                }
+                setTimeout(checkDressingAlert, 100);
             } else document.getElementById('cvcFollowSection').classList.add('hidden');
+
             if (currentSonda) {
                 html += '<span class="device-badge sonda">Sonda: ' + currentSonda.sonda_tipo + '</span>';
                 days += '<div class="days-card sonda"><div class="days-number">' + daysBetween(currentSonda.insertion_date, new Date()) + '</div><div class="days-label">Dias Sonda</div></div>';
                 document.getElementById('sondaFollowSection').classList.remove('hidden');
             } else document.getElementById('sondaFollowSection').classList.add('hidden');
+
             if (currentVM) {
                 html += '<span class="device-badge vm">VM: ' + currentVM.tubo_tipo + ' ' + currentVM.tubo_numero + '</span>';
                 days += '<div class="days-card vm"><div class="days-number">' + daysBetween(currentVM.insertion_date, new Date()) + '</div><div class="days-label">Dias VM</div></div>';
                 document.getElementById('vmFollowSection').classList.remove('hidden');
             } else document.getElementById('vmFollowSection').classList.add('hidden');
+
             html += '</div>'; days += '</div>';
             document.getElementById('patientInfoCard').innerHTML = html;
             document.getElementById('daysContainer').innerHTML = days;
@@ -1401,22 +1587,48 @@
             try {
                 if (currentCVC) {
                     const d = daysBetween(currentCVC.insertion_date, new Date());
+                    const tipoAposito = document.querySelector('input[name="cvcTipoAposito"]:checked')?.value || 'TRANSPARENTE';
+                    const curationDone = document.getElementById('curationDone')?.checked;
+                    const curationBy = document.getElementById('curationBy')?.value || '';
+                    const lastDressing = document.getElementById('lastDressingDate')?.value || '';
+
                     const bundle = {
                         hygiene: document.querySelector('input[name="cvcHygiene"]:checked')?.value || '',
                         hub: document.querySelector('input[name="cvcHub"]:checked')?.value || '',
                         continue: document.querySelector('input[name="cvcContinue"]:checked')?.value || '',
+                        tipoAposito: tipoAposito,
                         aposito: document.querySelector('input[name="cvcAposito"]:checked')?.value || '',
+                        visible: document.querySelector('input[name="cvcVisible"]:checked')?.value || '',
                         sitio: document.querySelector('input[name="cvcSitio"]:checked')?.value || '',
+                        lastDressingDate: lastDressing,
+                        curationDone: curationDone,
+                        curationBy: curationBy,
                         obs
                     };
-                    let pts = 0;
+
+                    let pts = 0, max = 7;
                     if (bundle.hygiene === 'Siempre') pts++;
                     if (bundle.hub === 'Si') pts++;
                     if (bundle.continue === 'Si') pts++;
                     if (bundle.aposito === 'Optimo') pts++;
+                    if (bundle.visible === 'Si') pts++;
                     if (bundle.sitio === 'Normal') pts++;
-                    await supabase.from('audits').insert({ patient_doc: currentCVC.document, audit_type: 'seguimiento', auditor, bed, catheter_days: d, bundle_data: bundle, compliance: Math.round(pts/5*100), needs_attention: bundle.continue === 'No' || bundle.sitio === 'Infeccion' });
-                    await supabase.from('patients').update({ bed }).eq('document', currentCVC.document);
+                    // Dressing protocol compliance
+                    const dressingDays = lastDressing ? daysBetween(lastDressing, new Date()) : 99;
+                    const maxDressingDays = tipoAposito === 'GASA' ? 2 : 7;
+                    if (dressingDays < maxDressingDays || curationDone) pts++;
+
+                    const needsAttention = bundle.continue === 'No' || bundle.sitio === 'Infeccion' || bundle.aposito === 'Humedo' || bundle.visible === 'No' || (dressingDays >= maxDressingDays && !curationDone);
+
+                    await supabase.from('audits').insert({ patient_doc: currentCVC.document, audit_type: 'seguimiento', auditor, bed, catheter_days: d, bundle_data: bundle, compliance: Math.round(pts/max*100), needs_attention: needsAttention });
+
+                    // Update patient with dressing info
+                    const updateData = { bed, dressing_type: tipoAposito };
+                    if (curationDone) {
+                        updateData.last_dressing_date = new Date().toISOString().split('T')[0];
+                        updateData.last_dressing_by = curationBy;
+                    }
+                    await supabase.from('patients').update(updateData).eq('document', currentCVC.document);
                 }
                 if (currentSonda) {
                     const d = daysBetween(currentSonda.insertion_date, new Date());
