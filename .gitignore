@@ -1,0 +1,16 @@
+# Archivos temporales de Dropbox
+.!*
+*.backup
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de bloqueo
+VERSION_LOCK.txt
+*.lock
+
+# Archivos temporales
+*.tmp
+*.temp
+*~
