@@ -49,17 +49,15 @@
         }
 
         .header-logo {
-            background: var(--blanco);
-            padding: 10px 15px;
+            background: var(--amarillo);
+            padding: 12px 18px;
             border-radius: 8px;
-            height: 70px;
             display: flex;
             align-items: center;
-        }
-
-        .header-logo img {
-            height: 50px;
-            width: auto;
+            font-weight: bold;
+            font-size: 20px;
+            color: var(--azul-oscuro);
+            letter-spacing: -0.5px;
         }
 
         .header-text h1 {
@@ -636,9 +634,7 @@
 
     <div class="container">
         <div class="header">
-            <div class="header-logo">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Logo_Colsubsidio.svg/1200px-Logo_Colsubsidio.svg.png" alt="Colsubsidio" onerror="this.style.display='none'">
-            </div>
+            <div class="header-logo">COLSUBSIDIO</div>
             <div class="header-text">
                 <h1>Sistema de Auditoria CLABSI</h1>
                 <p>UCI Pediatrica - Clinica Infantil Colsubsidio - Bundle de Prevencion 2025</p>
@@ -1399,6 +1395,10 @@
             try {
                 const { data, error } = await supabase.rpc('get_current_stats');
 
+                if (error) {
+                    throw error;
+                }
+
                 if (data && data.length > 0) {
                     const stats = data[0];
                     document.getElementById('statToday').textContent = stats.today_audits || 0;
@@ -1406,8 +1406,26 @@
                     document.getElementById('statCompliance').textContent = (stats.avg_compliance || 0) + '%';
                     document.getElementById('statAlerts').textContent = stats.active_alerts || 0;
                 }
+                updateConnectionStatus(true);
             } catch (error) {
                 console.error('Error cargando estadisticas:', error);
+                updateConnectionStatus(false);
+                document.getElementById('statToday').textContent = '-';
+                document.getElementById('statPatients').textContent = '-';
+                document.getElementById('statCompliance').textContent = '-';
+                document.getElementById('statAlerts').textContent = '-';
+            }
+        }
+
+        function updateConnectionStatus(isConnected) {
+            const indicator = document.getElementById('connectionIndicator');
+            const text = document.getElementById('connectionText');
+            if (isConnected) {
+                indicator.className = 'connection-indicator connection-online';
+                text.textContent = 'Conectado';
+            } else {
+                indicator.className = 'connection-indicator connection-offline';
+                text.textContent = 'Sin conexion - Verificar internet';
             }
         }
 

@@ -132,13 +132,12 @@
         }
 
         .header-logo {
-            background: var(--blanco);
-            padding: 8px 12px;
+            background: var(--amarillo);
+            padding: 10px 15px;
             border-radius: 8px;
-        }
-
-        .header-logo img {
-            height: 40px;
+            font-weight: bold;
+            font-size: 16px;
+            color: var(--azul-oscuro);
         }
 
         .header h1 {
@@ -488,7 +487,7 @@
     <div id="loginSection">
         <div class="login-box">
             <div class="login-logo">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Logo_Colsubsidio.svg/1200px-Logo_Colsubsidio.svg.png" alt="Colsubsidio" onerror="this.style.display='none'">
+                COLSUBSIDIO
             </div>
             <h1>Panel de Administracion</h1>
             <p>Sistema CLABSI - Acceso Restringido</p>
@@ -503,7 +502,7 @@
         <div class="header">
             <div class="header-title">
                 <div class="header-logo">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Logo_Colsubsidio.svg/1200px-Logo_Colsubsidio.svg.png" alt="Colsubsidio" onerror="this.style.display='none'">
+                    COLSUBSIDIO
                 </div>
                 <h1>Panel de Administracion - CLABSI</h1>
             </div>
@@ -726,18 +725,24 @@
 
         async function loadPatients() {
             showLoading();
-            const { data, error } = await supabase
-                .from('patients')
-                .select('*')
-                .order('created_at', { ascending: false });
-            hideLoading();
+            try {
+                const { data, error } = await supabase
+                    .from('patients')
+                    .select('*')
+                    .order('created_at', { ascending: false });
+                hideLoading();
 
-            if (error) {
-                showToast('Error: ' + error.message, 'error');
-                return;
+                if (error) {
+                    throw error;
+                }
+                allPatients = data || [];
+                renderTable(allPatients);
+            } catch (error) {
+                hideLoading();
+                showToast('Error de conexion. Verifique su internet y recargue la pagina.', 'error');
+                document.getElementById('patientsTable').innerHTML = '<tr><td colspan="9" style="text-align:center;padding:40px;color:var(--error);">Error de conexion - Verifique su internet</td></tr>';
+                console.error('Error:', error);
             }
-            allPatients = data || [];
-            renderTable(allPatients);
         }
 
         function renderTable(patients) {
